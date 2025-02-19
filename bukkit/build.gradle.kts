@@ -25,7 +25,7 @@ deployer {
         artifactId = "threadutil-bukkit"
         version = "${rootProject.version}"
 
-        name = rootProject.name
+        name = rootProject.name + "-Bukkit"
         description = rootProject.description.orEmpty()
         url = "https://github.com/milkdrinkers/ThreadUtil"
 

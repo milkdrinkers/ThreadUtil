@@ -26,7 +26,7 @@ deployer {
         artifactId = "threadutil-velocity"
         version = "${rootProject.version}"
 
-        name = rootProject.name
+        name = rootProject.name + "-Velocity"
         description = rootProject.description.orEmpty()
         url = "https://github.com/milkdrinkers/ThreadUtil"
 
