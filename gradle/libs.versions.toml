@@ -15,4 +15,4 @@ junit = ["junit-jupiter", "junit-platform"]
 
 [plugins]
 shadow = "io.github.goooler.shadow:8.1.8"
-maven-deployer = "io.deepmedia.tools.deployer:0.17.0"
+maven-deployer = "io.deepmedia.tools.deployer:0.16.0"
