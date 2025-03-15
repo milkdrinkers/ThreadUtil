@@ -133,6 +133,33 @@ public final class Scheduler {
     }
 
     /**
+     * Starts a new delayed stage queue.
+     *
+     * @param ticks The number of ticks to wait (20 ticks = 1 second)
+     * @return The current {@link StageQueue} with delay added
+     */
+    public static StageQueue<Void> delay(long ticks) {
+        if (!isInitialized)
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new StageQueue<>(new DelayStage<>(ticks));
+    }
+
+    /**
+     * Starts a new delayed stage queue.
+     *
+     * @param duration The duration to wait (converted to ticks)
+     * @return The current {@link StageQueue} with delay added
+     */
+    public static StageQueue<Void> delay(Duration duration) {
+        try {
+            return delay(platform.toTicks(duration));
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * Represents a queue of stages that can be executed with delays between stages.
      *
      * @param <T> The type of data being passed through the queue
