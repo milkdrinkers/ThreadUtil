@@ -30,7 +30,7 @@ A fluent scheduling utility for Minecraft plugins, providing elegant async/sync 
 
 ## 📦 Installation
 
-The `bukkit` & `velocity` modules depend on `common`. Additionally you should shade the dependency into your plugin jar.
+The `bukkit`, `velocity` & `sponge` modules depend on `common`. Additionally you should shade the dependencies into your plugin jar.
 
 <details>
 <summary>Gradle Kotlin DSL</summary>
@@ -43,6 +43,7 @@ repositories {
 dependencies {
     implementation("io.github.milkdrinkers:threadutil-common:1.0.0")
     implementation("io.github.milkdrinkers:threadutil-bukkit:1.0.0")
+    implementation("io.github.milkdrinkers:threadutil-sponge:1.0.0")
     implementation("io.github.milkdrinkers:threadutil-velocity:1.0.0")
 }
 ```
@@ -66,6 +67,11 @@ dependencies {
         </dependency>
         <dependency>
             <groupId>io.github.milkdrinkers</groupId>
+            <artifactId>threadutil-sponge</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.milkdrinkers</groupId>
             <artifactId>threadutil-velocity</artifactId>
             <version>1.0.0</version>
         </dependency>
@@ -76,32 +82,45 @@ dependencies {
 
 ## Usage Example 🚀
 ```java
+import io.github.milkdrinkers.threadutil.Cancellable;
+import io.github.milkdrinkers.threadutil.PlatformBukkit;
 import io.github.milkdrinkers.threadutil.Scheduler;
 
-Scheduler.async(() -> {
-    // Async database operation
-    return fetchPlayerData(player.getUniqueId());
+// Initialize ThreadUtil when your software is starting!
+Scheduler.init(new PlatformBukkit(this));
+
+Cancellable cancellableTask = Scheduler.async(() -> {
+    return fetchPlayerData(player.getUniqueId()); // Async database operation
 })
-.delay(Duration.ofSeconds(1))
+.delay(Duration.ofSeconds(10))
 .delay(1) // Wait one game tick on supported platforms
 .sync(data -> {
-    // Sync UI update
-    player.sendMessage("Loaded: " + data.toString());
-    return data.process();
+    // Executes sync on the main thread
+    player.sendMessage("Loaded: " + data.getPlayerNickname());
+    return data;
 })
-.async(processed -> {
+.async(data -> {
     // Async file I/O
-    saveToFile(processed);
-    return processed;
+    saveToFile(data);
 })
 .execute();
+
+// Cancell the other task after 5 seconds
+Scheduler.delay(Duration.ofSeconds(5))
+.sync(() -> {
+    System.out.println("I don't like that other task!");
+    cancellableTask.cancel();
+}).execute();
+
+// Make sure to shut down your scheduler when your software is stopping!
+Scheduler.shutdown();
 ```
 
 ## 📚 Documentation 
 
 - [Full Javadoc Documentation](https://javadoc.io/doc/io.github.milkdrinkers/threadutil-common)
 - [Documentation](https://milkdrinkers.github.io/)
-- [Maven Central](https://central.sonatype.com/artifact/io.github.milkdrinkers/threadutil-common)
+- [Maven Central](https://central.sonatype.com/search?q=threadutil&namespace=io.github.milkdrinkers)
 
 ---
 
@@ -131,4 +150,4 @@ You can find the license the source code and all assets are under [here](../LICE
 
 ## ❤️ Acknowledgments
 
-- **[Aikar:](https://github.com/aikar)** _For their excellent utility [__TaskChain__](https://github.com/aikar/TaskChain/), which this was inspired by. I highly recommend their library, providing the same features and MUCH MORE for any platform._
+- **[Aikar:](https://github.com/aikar)** _For their excellent utility [__TaskChain__](https://github.com/aikar/TaskChain/), which this was inspired by. I highly recommend their library, providing the same features and more for any platform!_
