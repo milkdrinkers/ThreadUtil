@@ -32,8 +32,6 @@ subprojects {
 
     java {
         toolchain.languageVersion.set(JavaLanguageVersion.of(21))
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_21
         withJavadocJar()
         withSourcesJar()
     }
@@ -42,6 +40,7 @@ subprojects {
         compileJava {
             options.encoding = Charsets.UTF_8.name()
             options.compilerArgs.addAll(arrayListOf("-Xlint:all", "-Xlint:-processing", "-Xdiags:verbose"))
+            options.release.set(8)
         }
 
         javadoc {
