@@ -83,9 +83,8 @@ public final class Scheduler {
      * @param <R> The return type of the initial stage
      * @return A new {@link StageQueue} instance
      */
-    @SuppressWarnings("unchecked")
     public static <R> StageQueue<R> async(Callable<R> callable) {
-        return Scheduler.async((Function<Void, R>) convertToFunction(callable));
+        return Scheduler.async(convertToFunction(callable));
     }
 
     /**
@@ -119,9 +118,8 @@ public final class Scheduler {
      * @param <R> The return type of the initial stage
      * @return A new {@link StageQueue} instance
      */
-    @SuppressWarnings("unchecked")
     public static <R> StageQueue<R> sync(Callable<R> callable) {
-        return Scheduler.sync((Function<Void, R>) convertToFunction(callable));
+        return Scheduler.sync(convertToFunction(callable));
     }
 
     /**
@@ -165,13 +163,22 @@ public final class Scheduler {
         /**
          * Adds an asynchronous processing stage to the queue.
          *
-         * @param callable The function to execute asynchronously
+         * @param consumer The consumer to execute asynchronously
+         * @return A new {@link StageQueue} with the added stage
+         */
+        public StageQueue<Void> async(Consumer<T> consumer) {
+            return async(convertToFunction(consumer));
+        }
+
+        /**
+         * Adds an asynchronous processing stage to the queue.
+         *
+         * @param callable The callable to execute asynchronously
          * @param <R> The return type of this stage
          * @return A new {@link StageQueue} with the added stage
          */
-        @SuppressWarnings("unchecked")
         public <R> StageQueue<R> async(Callable<R> callable) {
-            return async((Function<T, R>) convertToFunction(callable));
+            return async(convertToFunction(callable));
         }
 
         /**
@@ -198,13 +205,22 @@ public final class Scheduler {
         /**
          * Adds a synchronous processing stage to the queue.
          *
-         * @param callable The function to execute on the main thread
+         * @param consumer The consumer to execute on the main thread
+         * @return A new {@link StageQueue} with the added stage
+         */
+        public StageQueue<Void> sync(Consumer<T> consumer) {
+            return sync(convertToFunction(consumer));
+        }
+
+        /**
+         * Adds a synchronous processing stage to the queue.
+         *
+         * @param callable The callable to execute on the main thread
          * @param <R> The return type of this stage
          * @return A new {@link StageQueue} with the added stage
          */
-        @SuppressWarnings("unchecked")
         public <R> StageQueue<R> sync(Callable<R> callable) {
-            return sync((Function<T, R>) convertToFunction(callable));
+            return sync(convertToFunction(callable));
         }
 
         /**
@@ -251,7 +267,6 @@ public final class Scheduler {
             return new CancellableStageQueue(isCancelledFlag);
         }
 
-
         @SuppressWarnings("unchecked")
         @ApiStatus.Internal
         private <R> StageQueue<R> addStage(Stage<T, R> stage) {
@@ -287,6 +302,42 @@ public final class Scheduler {
         private long getCurrentStageId() {
             return currentStageId;
         }
+
+        /**
+         * Internal utility method to convert a {@link Consumer} to a {@link Function}.
+         * @param consumer consumer
+         * @return function
+         * @param <T> the input type of the consumer
+         */
+        @ApiStatus.Internal
+        private static <T> Function<T, Void> convertToFunction(Consumer<T> consumer) {
+            return (passed) -> {
+                try {
+                    consumer.accept(passed);
+                    return null;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            };
+        }
+
+        /**
+         * Internal utility method to convert a {@link Callable} to a {@link Function}.
+         * @param callable callable
+         * @return function
+         * @param <T> the input type of the callable
+         * @param <R> the return type of the callable
+         */
+        @ApiStatus.Internal
+        private static <T, R> Function<T, R> convertToFunction(Callable<R> callable) {
+            return (_ignored) -> {
+                try {
+                    return callable.call();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            };
+        }
     }
 
     /**
@@ -296,7 +347,7 @@ public final class Scheduler {
      * @param <R> the return type of the callable
      */
     @ApiStatus.Internal
-    private static <R> Function<?, R> convertToFunction(Callable<R> callable) {
+    private static <R> Function<Void, R> convertToFunction(Callable<R> callable) {
         return (_ignored) -> {
             try {
                 return callable.call();
