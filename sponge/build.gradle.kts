@@ -74,6 +74,8 @@ publishing {
 }
 
 signing {
+    isRequired = !rootProject.version.toString().contains("SNAPSHOT") // Only require signing when publishing releases
+
     val signingKey = findProperty("GPG_KEY")?.toString() ?: System.getenv("GPG_KEY")
     val signingPassword = findProperty("GPG_PASSWORD")?.toString() ?: System.getenv("GPG_PASSWORD")
 
