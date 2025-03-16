@@ -33,7 +33,7 @@ A fluent scheduling utility for Minecraft plugins, providing elegant async/sync 
 
 ## 📦 Installation
 
-The `bukkit`, `velocity` & `sponge` modules depend on `common`. Additionally you should shade the dependencies into your plugin jar.
+The `bukkit`, `velocity` & `sponge` modules transitively include `common`. Additionally you should shade the library into your plugin jar.
 
 <details>
 <summary>Gradle Kotlin DSL</summary>
@@ -44,10 +44,10 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.milkdrinkers:threadutil-common:1.0.0")
-    implementation("io.github.milkdrinkers:threadutil-bukkit:1.0.0")
-    implementation("io.github.milkdrinkers:threadutil-sponge:1.0.0")
-    implementation("io.github.milkdrinkers:threadutil-velocity:1.0.0")
+    implementation("io.github.milkdrinkers:threadutil-common:VERSION")
+    implementation("io.github.milkdrinkers:threadutil-bukkit:VERSION")
+    implementation("io.github.milkdrinkers:threadutil-sponge:VERSION")
+    implementation("io.github.milkdrinkers:threadutil-velocity:VERSION")
 }
 ```
 </details>
@@ -61,22 +61,22 @@ dependencies {
         <dependency>
             <groupId>io.github.milkdrinkers</groupId>
             <artifactId>threadutil-common</artifactId>
-            <version>1.0.0</version>
+            <version>VERSION</version>
         </dependency>
         <dependency>
             <groupId>io.github.milkdrinkers</groupId>
             <artifactId>threadutil-bukkit</artifactId>
-            <version>1.0.0</version>
+            <version>VERSION</version>
         </dependency>
         <dependency>
             <groupId>io.github.milkdrinkers</groupId>
             <artifactId>threadutil-sponge</artifactId>
-            <version>1.0.0</version>
+            <version>VERSION</version>
         </dependency>
         <dependency>
             <groupId>io.github.milkdrinkers</groupId>
             <artifactId>threadutil-velocity</artifactId>
-            <version>1.0.0</version>
+            <version>VERSION</version>
         </dependency>
     </dependencies>
 </project>
