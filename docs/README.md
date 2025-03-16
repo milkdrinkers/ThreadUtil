@@ -7,6 +7,9 @@
     <a href="https://central.sonatype.com/artifact/io.github.milkdrinkers/threadutil-common">
         <img alt="Maven Central Version" src="https://img.shields.io/maven-central/v/io.github.milkdrinkers/threadutil-common?style=for-the-badge&labelColor=141417">
     </a>
+    <a href="https://milkdrinkers.athyrium.eu/threadutil">
+        <img alt="Documentation" src="https://img.shields.io/badge/DOCUMENTATION-900C3F?style=for-the-badge&labelColor=141417">
+    </a>
     <a href="https://javadoc.io/doc/io.github.milkdrinkers/threadutil-common">
         <img alt="Javadoc" src="https://img.shields.io/badge/JAVADOC-8A2BE2?style=for-the-badge&labelColor=141417">
     </a>
@@ -119,7 +122,7 @@ Scheduler.shutdown();
 ## 📚 Documentation 
 
 - [Full Javadoc Documentation](https://javadoc.io/doc/io.github.milkdrinkers/threadutil-common)
-- [Documentation](https://milkdrinkers.github.io/)
+- [Documentation](https://milkdrinkers.athyrium.eu/threadutil)
 - [Maven Central](https://central.sonatype.com/search?q=threadutil&namespace=io.github.milkdrinkers)
 
 ---
