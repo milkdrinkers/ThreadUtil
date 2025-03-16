@@ -1,5 +1,6 @@
 plugins {
-    alias(libs.plugins.maven.deployer)
+    `maven-publish`
+    signing
 }
 
 dependencies {
@@ -12,50 +13,63 @@ tasks {
     }
 }
 
-deployer {
-    release {
-        version.set("${rootProject.version}")
-        description.set(rootProject.description.orEmpty())
-    }
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
 
-    projectInfo {
-        groupId = "io.github.milkdrinkers"
-        artifactId = "threadutil-common"
-        version = "${rootProject.version}"
+            groupId = "io.github.milkdrinkers"
+            artifactId = "threadutil-common"
+            version = "${rootProject.version}"
 
-        name = rootProject.name
-        description = rootProject.description.orEmpty()
-        url = "https://github.com/milkdrinkers/ThreadUtil"
+            pom {
+                name.set(rootProject.name)
+                description.set(rootProject.description.orEmpty())
+                url.set("https://github.com/milkdrinkers/ThreadUtil")
 
-        scm {
-            connection = "scm:git:git://github.com/milkdrinkers/ThreadUtil.git"
-            developerConnection = "scm:git:ssh://github.com:milkdrinkers/ThreadUtil.git"
-            url = "https://github.com/milkdrinkers/ThreadUtil"
+                licenses {
+                    license {
+                        name.set("GNU General Public License Version 3")
+                        url.set("https://www.gnu.org/licenses/gpl-3.0.en.html#license-text")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("darksaid98")
+                        name.set("darksaid98")
+                        email.set("darksaid9889@gmail.com")
+                        url.set("https://github.com/darksaid98")
+                        organization.set("Milkdrinkers")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/milkdrinkers/ThreadUtil.git")
+                    developerConnection.set("scm:git:ssh://github.com:milkdrinkers/ThreadUtil.git")
+                    url.set("https://github.com/milkdrinkers/ThreadUtil")
+                }
+            }
         }
-
-        license("GNU General Public License Version 3", "https://www.gnu.org/licenses/gpl-3.0.en.html#license-text")
-
-        developer({
-            name.set("darksaid98")
-            email.set("darksaid9889@gmail.com")
-            url.set("https://github.com/darksaid98")
-            organization.set("Milkdrinkers")
-        })
     }
 
-    content {
-        component {
-            fromJava()
+    repositories {
+        maven {
+            name = "CentralPortal"
+            url = uri("https://central.sonatype.com/api/v1/publisher")
+
+            credentials {
+                username = findProperty("MAVEN_USERNAME")?.toString() ?: System.getenv("MAVEN_USERNAME")
+                password = findProperty("MAVEN_PASSWORD")?.toString() ?: System.getenv("MAVEN_PASSWORD")
+            }
         }
     }
+}
 
-    centralPortalSpec {
-        auth.user.set(secret("MAVEN_USERNAME"))
-        auth.password.set(secret("MAVEN_PASSWORD"))
-    }
+signing {
+    val signingKey = findProperty("GPG_KEY")?.toString() ?: System.getenv("GPG_KEY")
+    val signingPassword = findProperty("GPG_PASSWORD")?.toString() ?: System.getenv("GPG_PASSWORD")
 
-    signing {
-        key.set(secret("GPG_KEY"))
-        password.set(secret("GPG_PASSWORD"))
-    }
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign(publishing.publications["mavenJava"])
 }
