@@ -27,7 +27,7 @@ A fluent scheduling utility for Minecraft plugins, providing elegant async/sync 
 ## 🌟 Features
 - 🧵 Fluent API for async/sync task chaining
 - ⏱️ Built-in delay support with tick/Duration precision
-- 🚫 Stage cancellation support
+- 🚫 Task cancellation support
 - 🔒 Thread-safe error handling
 - 🧩 Custom thread pool integration
 
@@ -85,35 +85,31 @@ dependencies {
 
 ## Usage Example 🚀
 ```java
-import io.github.milkdrinkers.threadutil.Cancellable;
+import io.github.milkdrinkers.threadutil.queue.RunningTaskQueue;
 import io.github.milkdrinkers.threadutil.PlatformBukkit;
 import io.github.milkdrinkers.threadutil.Scheduler;
 
 // Initialize ThreadUtil when your software is starting!
-Scheduler.init(new PlatformBukkit(this));
+Scheduler.init(new PlatformBukkit(plugin));
 
-Cancellable cancellableTask = Scheduler.async(() -> {
-    return fetchPlayerData(player.getUniqueId()); // Async database operation
-})
-.delay(Duration.ofSeconds(10))
-.delay(1) // Wait one game tick on supported platforms
-.sync(data -> {
-    // Executes sync on the main thread
-    player.sendMessage("Loaded: " + data.getPlayerNickname());
-    return data;
-})
-.async(data -> {
-    // Async file I/O
-    saveToFile(data);
-})
-.execute();
+// Start executing the queue and store the running task queue
+RunningTaskQueue taskQueue = Scheduler
+    .async(() -> {
+        return fetchPlayerData(player.getUniqueId());
+    })
+    .delay(Duration.ofSeconds(10))
+    .async(playerData -> {
+        saveToFile(playerData);
+    })
+    .execute();
 
-// Cancell the other task after 5 seconds
-Scheduler.delay(Duration.ofSeconds(5))
-.sync(() -> {
-    System.out.println("I don't like that other task!");
-    cancellableTask.cancel();
-}).execute();
+// Wait 5 seconds then cancel the other task queue
+Scheduler
+    .delay(Duration.ofSeconds(5))
+    .sync(() -> {
+        taskQueue.cancel();
+    })
+    .execute();
 
 // Make sure to shut down your scheduler when your software is stopping!
 Scheduler.shutdown();
