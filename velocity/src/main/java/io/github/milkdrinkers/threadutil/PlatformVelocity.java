@@ -2,6 +2,7 @@ package io.github.milkdrinkers.threadutil;
 
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
+import io.github.milkdrinkers.threadutil.exception.SchedulerShutdownTimeoutException;
 import io.github.milkdrinkers.threadutil.internal.ExecutorService;
 import io.github.milkdrinkers.threadutil.internal.ExecutorServiceBuilder;
 
@@ -57,7 +58,7 @@ public class PlatformVelocity implements PlatformAdapter {
     }
 
     @Override
-    public void shutdown(Duration duration) {
+    public void shutdown(Duration duration) throws SchedulerShutdownTimeoutException {
         PlatformAdapter.super.shutdown(duration);
     }
 

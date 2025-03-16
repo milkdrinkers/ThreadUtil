@@ -1,7 +1,9 @@
 package io.github.milkdrinkers.threadutil;
 
+import io.github.milkdrinkers.threadutil.exception.SchedulerAlreadyShuttingDownException;
 import io.github.milkdrinkers.threadutil.exception.SchedulerInitializationException;
 import io.github.milkdrinkers.threadutil.exception.SchedulerNotInitializedException;
+import io.github.milkdrinkers.threadutil.exception.SchedulerShutdownTimeoutException;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.time.Duration;
@@ -19,38 +21,91 @@ import java.util.function.Function;
 public final class Scheduler {
     private static PlatformAdapter platform;
     private static volatile boolean isInitialized = false;
+    private static volatile boolean isShuttingDown = false;
     private static volatile Consumer<Throwable> errorHandler = Throwable::printStackTrace;
 
     private Scheduler() {}
+
+    private static void setInitialized(boolean isInitialized) {
+        Scheduler.isInitialized = isInitialized;
+    }
+
+    private static void setShuttingDown(boolean isShuttingDown) {
+        Scheduler.isShuttingDown = isShuttingDown;
+    }
+
+    private static void setPlatform(PlatformAdapter platform) {
+        Scheduler.platform = platform;
+    }
+
+    /**
+     * Checks if the scheduler is in the process of shutting down.
+     * @return boolean
+     */
+    public static boolean isShuttingDown() {
+        return isShuttingDown;
+    }
+
+    /**
+     * Checks if the scheduler has been initialized. This returns true when the schedule is ready for usage.
+     * @return boolean
+     */
+    public static boolean isInitialized() {
+        return isInitialized;
+    }
 
     /**
      * Initializes the scheduler with required platform.
      *
      * @param platform The platform instance
      * @throws SchedulerInitializationException if the scheduler is already initialized
+     * @see PlatformAdapter
      */
-    public static void init(PlatformAdapter platform) {
-        if (isInitialized)
+    public static void init(PlatformAdapter platform) throws SchedulerInitializationException {
+        if (isInitialized())
             throw new SchedulerInitializationException("Scheduler is already initialized");
+
+        if (isShuttingDown())
+            throw new SchedulerInitializationException("Scheduler is in the process of shutting down");
 
         if (platform == null)
             throw new SchedulerInitializationException("Platform must not be null");
 
-        Scheduler.platform = platform;
-        isInitialized = true;
+        setPlatform(platform);
+        setInitialized(true);
+    }
+
+    /**
+     * Shuts down the scheduler and cancels all pending stages. Defaults to a 60 second timeout on running stages.
+     *
+     * @throws SchedulerNotInitializedException if the scheduler is not initialized
+     * @throws SchedulerAlreadyShuttingDownException if the scheduler is already shutting down
+     * @throws SchedulerShutdownTimeoutException thrown if the scheduler is not shut down in time
+     */
+    public static void shutdown() throws SchedulerNotInitializedException, SchedulerAlreadyShuttingDownException, SchedulerShutdownTimeoutException {
+        shutdown(Duration.ofSeconds(60L));
     }
 
     /**
      * Shuts down the scheduler and cancels all pending stages.
      *
+     * @param duration The duration to wait before killing any incomplete stages.
      * @throws SchedulerNotInitializedException if the scheduler is not initialized
+     * @throws SchedulerAlreadyShuttingDownException if the scheduler is already shutting down
+     * @throws SchedulerShutdownTimeoutException thrown if the scheduler is not shut down in time
      */
-    public static void shutdown() {
-        if (!isInitialized)
+    public static void shutdown(Duration duration) throws SchedulerNotInitializedException, SchedulerAlreadyShuttingDownException, SchedulerShutdownTimeoutException {
+        if (!isInitialized())
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
-        platform.shutdown(Duration.ofSeconds(60L));
-        isInitialized = false;
+        if (isShuttingDown())
+            throw new SchedulerAlreadyShuttingDownException("Scheduler is already shutting down");
+
+        setShuttingDown(true);
+        platform.shutdown(duration);
+        setPlatform(null);
+        setInitialized(false);
+        setShuttingDown(false);
     }
 
     /**

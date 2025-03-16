@@ -1,5 +1,6 @@
 package io.github.milkdrinkers.threadutil;
 
+import io.github.milkdrinkers.threadutil.exception.SchedulerShutdownTimeoutException;
 import io.github.milkdrinkers.threadutil.internal.ExecutorService;
 import io.github.milkdrinkers.threadutil.internal.ExecutorServiceBuilder;
 import org.spongepowered.api.Sponge;
@@ -80,7 +81,7 @@ public class PlatformSponge implements PlatformAdapter {
     }
 
     @Override
-    public void shutdown(Duration duration) {
+    public void shutdown(Duration duration) throws SchedulerShutdownTimeoutException {
         PlatformAdapter.super.shutdown(duration);
     }
 
