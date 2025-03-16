@@ -4,16 +4,16 @@ import io.github.milkdrinkers.threadutil.internal.ExecutorService;
 
 import java.time.Duration;
 
-public interface Platform {
+public interface PlatformAdapter {
     /**
-     * Returns whether this is running on the {@link Platform}'s main thread
+     * Returns whether this is running on the {@link PlatformAdapter}'s main thread
      * @return boolean
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean isMainThread();
 
     /**
-     * Returns the executor service for this {@link Platform}
+     * Returns the executor service for this {@link PlatformAdapter}
      * @return executor service
      */
     ExecutorService getExecutorService();
@@ -47,7 +47,7 @@ public interface Platform {
     void runSyncLater(long ticks, Runnable runnable);
 
     /**
-     * A method executed when the {@link Platform} is shutting down
+     * A method executed when the {@link PlatformAdapter} is shutting down
      * @param duration duration
      */
     default void shutdown(Duration duration) {

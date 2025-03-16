@@ -9,7 +9,7 @@ import org.spongepowered.plugin.PluginContainer;
 
 import java.time.Duration;
 
-public class PlatformSponge implements Platform {
+public class PlatformSponge implements PlatformAdapter {
     private final PluginContainer plugin;
     private final ExecutorService executorService;
 
@@ -46,7 +46,7 @@ public class PlatformSponge implements Platform {
 
     @Override
     public void runAsync(Runnable runnable) {
-        Platform.super.runAsync(runnable);
+        PlatformAdapter.super.runAsync(runnable);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class PlatformSponge implements Platform {
 
     @Override
     public void shutdown(Duration duration) {
-        Platform.super.shutdown(duration);
+        PlatformAdapter.super.shutdown(duration);
     }
 
     public long toTicks(Duration duration) {

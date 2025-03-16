@@ -7,7 +7,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.time.Duration;
 
-public class PlatformBukkit implements Platform {
+public class PlatformBukkit implements PlatformAdapter {
     private final Plugin plugin;
     private final ExecutorService executorService;
 
@@ -37,7 +37,7 @@ public class PlatformBukkit implements Platform {
 
     @Override
     public void runAsync(Runnable runnable) {
-        Platform.super.runAsync(runnable);
+        PlatformAdapter.super.runAsync(runnable);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class PlatformBukkit implements Platform {
 
     @Override
     public void shutdown(Duration duration) {
-        Platform.super.shutdown(duration);
+        PlatformAdapter.super.shutdown(duration);
     }
 
     public long toTicks(Duration duration) {

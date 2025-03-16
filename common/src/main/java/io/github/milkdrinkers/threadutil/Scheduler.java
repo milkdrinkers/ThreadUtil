@@ -17,7 +17,7 @@ import java.util.function.Function;
  * error handling, cancellation support, and configurable delays.
  */
 public final class Scheduler {
-    private static Platform platform;
+    private static PlatformAdapter platform;
     private static volatile boolean isInitialized = false;
     private static volatile Consumer<Throwable> errorHandler = Throwable::printStackTrace;
 
@@ -29,7 +29,7 @@ public final class Scheduler {
      * @param platform The platform instance
      * @throws SchedulerInitializationException if the scheduler is already initialized
      */
-    public static void init(Platform platform) {
+    public static void init(PlatformAdapter platform) {
         if (isInitialized)
             throw new SchedulerInitializationException("Scheduler is already initialized");
 

@@ -6,7 +6,7 @@ import io.github.milkdrinkers.threadutil.internal.ExecutorServiceBuilder;
 
 import java.time.Duration;
 
-public class PlatformVelocity implements Platform {
+public class PlatformVelocity implements PlatformAdapter {
     private final Plugin plugin;
     private final ExecutorService executorService;
 
