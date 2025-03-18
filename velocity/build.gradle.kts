@@ -1,5 +1,9 @@
+import com.vanniktech.maven.publish.JavaLibrary
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
-    alias(libs.plugins.maven.deployer)
+    alias(libs.plugins.publisher)
 }
 
 dependencies {
@@ -8,57 +12,58 @@ dependencies {
     compileOnly(libs.velocity.api)
 }
 
-tasks {
-    test {
-        useJUnitPlatform()
-        failFast = false
-    }
-}
+mavenPublishing {
+    coordinates(
+        groupId = "io.github.milkdrinkers",
+        artifactId = "threadutil-velocity",
+        version = version.toString().let { originalVersion ->
+            if (!originalVersion.contains("-SNAPSHOT"))
+                originalVersion
+            else
+                originalVersion.substringBeforeLast("-SNAPSHOT") + "-SNAPSHOT" // Force append just -SNAPSHOT if snapshot version
+        }
+    )
 
-deployer {
-    release {
-        version.set("${rootProject.version}")
+    pom {
+        name.set(rootProject.name + "-Velocity")
         description.set(rootProject.description.orEmpty())
-    }
+        url.set("https://github.com/milkdrinkers/ThreadUtil")
+        inceptionYear.set("2025")
 
-    projectInfo {
-        groupId = "io.github.milkdrinkers"
-        artifactId = "threadutil-velocity"
-        version = "${rootProject.version}"
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
+                distribution.set("https://opensource.org/licenses/MIT")
+            }
+        }
 
-        name = rootProject.name + "-Velocity"
-        description = rootProject.description.orEmpty()
-        url = "https://github.com/milkdrinkers/ThreadUtil"
+        developers {
+            developer {
+                id.set("darksaid98")
+                name.set("darksaid98")
+                url.set("https://github.com/darksaid98")
+                organization.set("Milkdrinkers")
+            }
+        }
 
         scm {
-            connection = "scm:git:git://github.com/milkdrinkers/ThreadUtil.git"
-            developerConnection = "scm:git:ssh://github.com:milkdrinkers/ThreadUtil.git"
-            url = "https://github.com/milkdrinkers/ThreadUtil"
-        }
-
-        license("MIT License", "https://opensource.org/licenses/MIT")
-
-        developer({
-            name.set("darksaid98")
-            email.set("darksaid9889@gmail.com")
-            url.set("https://github.com/darksaid98")
-            organization.set("Milkdrinkers")
-        })
-    }
-
-    content {
-        component {
-            fromJava()
+            url.set("https://github.com/milkdrinkers/ThreadUtil")
+            connection.set("scm:git:git://github.com/milkdrinkers/ThreadUtil.git")
+            developerConnection.set("scm:git:ssh://github.com:milkdrinkers/ThreadUtil.git")
         }
     }
 
-    centralPortalSpec {
-        auth.user.set(secret("MAVEN_USERNAME"))
-        auth.password.set(secret("MAVEN_PASSWORD"))
-    }
+    configure(JavaLibrary(
+        javadocJar = JavadocJar.None(), // We want to use our own javadoc jar
+    ))
 
-    signing {
-        key.set(secret("GPG_KEY"))
-        password.set(secret("GPG_PASSWORD"))
-    }
+    // Publish to Maven Central
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+
+    // Sign all publications
+    signAllPublications()
+
+    // Skip signing for local tasks
+    tasks.withType<Sign>().configureEach { onlyIf { !gradle.taskGraph.allTasks.any { it is PublishToMavenLocal } } }
 }
