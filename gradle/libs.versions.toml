@@ -6,7 +6,7 @@ paper-api = "com.destroystokyo.paper:paper-api:1.13.2-R0.1-SNAPSHOT"
 velocity-api = "com.velocitypowered:velocity-api:3.0.0-SNAPSHOT"
 sponge-api = "org.spongepowered:spongeapi:8.2.0"
 
-junit-bom = "org.junit:junit-bom:5.12.1"
+junit-bom = "org.junit:junit-bom:5.12.2"
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform = { module = "org.junit.platform:junit-platform-launcher" }
 
