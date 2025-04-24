@@ -3,6 +3,7 @@
 [libraries]
 annotations = "org.jetbrains:annotations:26.0.2"
 paper-api = "com.destroystokyo.paper:paper-api:1.13.2-R0.1-SNAPSHOT"
+folia-api = "dev.folia:folia-api:1.19.4-R0.1-SNAPSHOT"
 velocity-api = "com.velocitypowered:velocity-api:3.0.0-SNAPSHOT"
 sponge-api = "org.spongepowered:spongeapi:8.2.0"
 

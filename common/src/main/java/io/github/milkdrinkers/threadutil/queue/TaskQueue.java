@@ -3,8 +3,8 @@ package io.github.milkdrinkers.threadutil.queue;
 import io.github.milkdrinkers.threadutil.PlatformAdapter;
 import io.github.milkdrinkers.threadutil.task.AsyncTask;
 import io.github.milkdrinkers.threadutil.task.DelayTask;
-import io.github.milkdrinkers.threadutil.task.Task;
 import io.github.milkdrinkers.threadutil.task.SyncTask;
+import io.github.milkdrinkers.threadutil.task.Task;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.time.Duration;
@@ -20,13 +20,13 @@ import java.util.function.Function;
  *
  * @param <T> The type of data being passed through the queue
  */
-public final class TaskQueue<T> {
-    private final ConcurrentLinkedQueue<Task<?, ?>> tasks = new ConcurrentLinkedQueue<>();
-    private long currentTaskId = 0;
-    private final AtomicBoolean isCancelledFlag = new AtomicBoolean(false);
+public class TaskQueue<T> {
+    protected final ConcurrentLinkedQueue<Task<?, ?>> tasks = new ConcurrentLinkedQueue<>();
+    protected long currentTaskId = 0;
+    protected final AtomicBoolean isCancelledFlag = new AtomicBoolean(false);
 
-    private final PlatformAdapter platform;
-    private final Consumer<Throwable> errorHandler;
+    protected final PlatformAdapter platform;
+    protected final Consumer<Throwable> errorHandler;
 
     public TaskQueue(PlatformAdapter platform, Consumer<Throwable> errorHandler, Task<Void, T> initialTask) {
         this.platform = platform;
@@ -38,7 +38,7 @@ public final class TaskQueue<T> {
      * Adds an asynchronous processing task to the queue.
      *
      * @param function The function to execute asynchronously
-     * @param <R> The return type of this task
+     * @param <R>      The return type of this task
      * @return A new {@link TaskQueue} with the added task
      */
     public <R> TaskQueue<R> async(Function<T, R> function) {
@@ -59,7 +59,7 @@ public final class TaskQueue<T> {
      * Adds an asynchronous processing task to the queue.
      *
      * @param callable The callable to execute asynchronously
-     * @param <R> The return type of this task
+     * @param <R>      The return type of this task
      * @return A new {@link TaskQueue} with the added task
      */
     public <R> TaskQueue<R> async(Callable<R> callable) {
@@ -80,7 +80,7 @@ public final class TaskQueue<T> {
      * Adds a synchronous processing task to the queue.
      *
      * @param function The function to execute on the main thread
-     * @param <R> The return type of this task
+     * @param <R>      The return type of this task
      * @return A new {@link TaskQueue} with the added task
      */
     public <R> TaskQueue<R> sync(Function<T, R> function) {
@@ -101,7 +101,7 @@ public final class TaskQueue<T> {
      * Adds a synchronous processing task to the queue.
      *
      * @param callable The callable to execute on the main thread
-     * @param <R> The return type of this task
+     * @param <R>      The return type of this task
      * @return A new {@link TaskQueue} with the added task
      */
     public <R> TaskQueue<R> sync(Callable<R> callable) {
@@ -154,14 +154,14 @@ public final class TaskQueue<T> {
 
     @SuppressWarnings("unchecked")
     @ApiStatus.Internal
-    private <R> TaskQueue<R> addTask(Task<T, R> task) {
+    protected <R> TaskQueue<R> addTask(Task<T, R> task) {
         this.tasks.add(task);
         return (TaskQueue<R>) this;
     }
 
     @SuppressWarnings("unchecked")
     @ApiStatus.Internal
-    private <I> void executeTask(I input, AtomicBoolean isCancelledFlag) {
+    protected <I> void executeTask(I input, AtomicBoolean isCancelledFlag) {
         if (isCancelledFlag.get())
             return;
 
@@ -181,6 +181,7 @@ public final class TaskQueue<T> {
 
     /**
      * Internal method to get the current task ID.
+     *
      * @return task ID
      */
     @ApiStatus.Internal
@@ -190,12 +191,13 @@ public final class TaskQueue<T> {
 
     /**
      * Internal utility method to convert a {@link Consumer} to a {@link Function}.
+     *
      * @param consumer consumer
+     * @param <T>      the input type of the consumer
      * @return function
-     * @param <T> the input type of the consumer
      */
     @ApiStatus.Internal
-    private static <T> Function<T, Void> convertToFunction(Consumer<T> consumer) {
+    protected static <T> Function<T, Void> convertToFunction(Consumer<T> consumer) {
         return (passed) -> {
             try {
                 consumer.accept(passed);
@@ -208,13 +210,14 @@ public final class TaskQueue<T> {
 
     /**
      * Internal utility method to convert a {@link Callable} to a {@link Function}.
+     *
      * @param callable callable
+     * @param <T>      the input type of the callable
+     * @param <R>      the return type of the callable
      * @return function
-     * @param <T> the input type of the callable
-     * @param <R> the return type of the callable
      */
     @ApiStatus.Internal
-    private static <T, R> Function<T, R> convertToFunction(Callable<R> callable) {
+    protected static <T, R> Function<T, R> convertToFunction(Callable<R> callable) {
         return (_ignored) -> {
             try {
                 return callable.call();

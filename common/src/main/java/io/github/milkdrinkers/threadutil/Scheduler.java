@@ -7,8 +7,8 @@ import io.github.milkdrinkers.threadutil.exception.SchedulerShutdownTimeoutExcep
 import io.github.milkdrinkers.threadutil.queue.TaskQueue;
 import io.github.milkdrinkers.threadutil.task.AsyncTask;
 import io.github.milkdrinkers.threadutil.task.DelayTask;
-import io.github.milkdrinkers.threadutil.task.Task;
 import io.github.milkdrinkers.threadutil.task.SyncTask;
+import io.github.milkdrinkers.threadutil.task.Task;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.time.Duration;
@@ -21,13 +21,14 @@ import java.util.function.Function;
  * A fluent API for scheduling asynchronous and synchronous {@link Task}s sequentially,
  * error handling, cancellation support, and configurable delays.
  */
-public final class Scheduler {
+public class Scheduler {
     private static PlatformAdapter platform;
     private static volatile boolean isInitialized = false;
     private static volatile boolean isShuttingDown = false;
     private static volatile Consumer<Throwable> errorHandler = Throwable::printStackTrace;
 
-    private Scheduler() {}
+    protected Scheduler() {
+    }
 
     private static void setPlatform(PlatformAdapter platform) {
         Scheduler.platform = platform;
@@ -47,6 +48,7 @@ public final class Scheduler {
 
     /**
      * Checks if the scheduler is in the process of shutting down.
+     *
      * @return boolean
      */
     public static boolean isShuttingDown() {
@@ -55,6 +57,7 @@ public final class Scheduler {
 
     /**
      * Checks if the scheduler has been initialized. This returns true when the schedule is ready for usage.
+     *
      * @return boolean
      */
     public static boolean isInitialized() {
@@ -85,9 +88,9 @@ public final class Scheduler {
     /**
      * Shuts down the scheduler and cancels all running task queues. Defaults to a 60 second timeout on running task queues.
      *
-     * @throws SchedulerNotInitializedException if the scheduler is not initialized
+     * @throws SchedulerNotInitializedException      if the scheduler is not initialized
      * @throws SchedulerAlreadyShuttingDownException if the scheduler is already shutting down
-     * @throws SchedulerShutdownTimeoutException thrown if the scheduler is not shut down in time
+     * @throws SchedulerShutdownTimeoutException     thrown if the scheduler is not shut down in time
      */
     public static void shutdown() throws SchedulerNotInitializedException, SchedulerAlreadyShuttingDownException, SchedulerShutdownTimeoutException {
         shutdown(Duration.ofSeconds(60L));
@@ -97,9 +100,9 @@ public final class Scheduler {
      * Shuts down the scheduler and cancels all running task queues.
      *
      * @param duration The duration to wait before killing any incomplete task queues.
-     * @throws SchedulerNotInitializedException if the scheduler is not initialized
+     * @throws SchedulerNotInitializedException      if the scheduler is not initialized
      * @throws SchedulerAlreadyShuttingDownException if the scheduler is already shutting down
-     * @throws SchedulerShutdownTimeoutException thrown if the scheduler is not shut down in time
+     * @throws SchedulerShutdownTimeoutException     thrown if the scheduler is not shut down in time
      */
     public static void shutdown(Duration duration) throws SchedulerNotInitializedException, SchedulerAlreadyShuttingDownException, SchedulerShutdownTimeoutException {
         if (!isInitialized())
@@ -132,7 +135,7 @@ public final class Scheduler {
      * Starts a new asynchronous task queue.
      *
      * @param function The operation to execute asynchronously
-     * @param <R> The return type of the initial task
+     * @param <R>      The return type of the initial task
      * @return A new {@link TaskQueue} instance
      */
     public static <R> TaskQueue<R> async(Function<Void, R> function) {
@@ -146,7 +149,7 @@ public final class Scheduler {
      * Starts a new asynchronous task queue.
      *
      * @param callable The operation to execute asynchronously
-     * @param <R> The return type of the initial task
+     * @param <R>      The return type of the initial task
      * @return A new {@link TaskQueue} instance
      */
     public static <R> TaskQueue<R> async(Callable<R> callable) {
@@ -167,7 +170,7 @@ public final class Scheduler {
      * Starts a new synchronous task queue.
      *
      * @param function The operation to execute on the main thread
-     * @param <R> The return type of the initial task
+     * @param <R>      The return type of the initial task
      * @return A new {@link TaskQueue} instance
      */
     public static <R> TaskQueue<R> sync(Function<Void, R> function) {
@@ -181,7 +184,7 @@ public final class Scheduler {
      * Starts a new synchronous task queue.
      *
      * @param callable The operation to execute on the main thread
-     * @param <R> The return type of the initial task
+     * @param <R>      The return type of the initial task
      * @return A new {@link TaskQueue} instance
      */
     public static <R> TaskQueue<R> sync(Callable<R> callable) {
@@ -227,12 +230,13 @@ public final class Scheduler {
 
     /**
      * Internal utility method to convert a {@link Callable} to a {@link Function}.
+     *
      * @param callable callable
+     * @param <R>      the return type of the callable
      * @return function
-     * @param <R> the return type of the callable
      */
     @ApiStatus.Internal
-    private static <R> Function<Void, R> convertToFunction(Callable<R> callable) {
+    static <R> Function<Void, R> convertToFunction(Callable<R> callable) {
         return (_ignored) -> {
             try {
                 return callable.call();
@@ -241,5 +245,4 @@ public final class Scheduler {
             }
         };
     }
-
 }
