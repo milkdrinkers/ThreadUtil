@@ -8,7 +8,7 @@ plugins {
 
 dependencies {
     api(projects.common)
-    compileOnly(libs.sponge.api) {
+    compileOnly(libs.sponge.api12) {
         exclude("configurate-core")
         exclude("configurate-hocon")
         exclude("configurate-gson")
@@ -16,10 +16,16 @@ dependencies {
     }
 }
 
+tasks {
+    compileJava {
+        options.release.set(21)
+    }
+}
+
 mavenPublishing {
     coordinates(
         groupId = "io.github.milkdrinkers",
-        artifactId = "threadutil-sponge",
+        artifactId = "threadutil-sponge12",
         version = version.toString().let { originalVersion ->
             if (!originalVersion.contains("-SNAPSHOT"))
                 originalVersion
@@ -29,7 +35,7 @@ mavenPublishing {
     )
 
     pom {
-        name.set(rootProject.name + "-Sponge")
+        name.set(rootProject.name + "-Sponge12")
         description.set(rootProject.description.orEmpty())
         url.set("https://github.com/milkdrinkers/ThreadUtil")
         inceptionYear.set("2025")
