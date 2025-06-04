@@ -25,11 +25,11 @@ A fluent scheduling utility for Minecraft plugins, providing elegant async/sync 
 ---
 
 ## 🌟 Features
-- 🧵 Fluent API for async/sync task chaining
-- ⏱️ Built-in delay support with tick/Duration precision
-- 🚫 Task cancellation support
-- 🔒 Thread-safe error handling
-- 🧩 Custom thread pool integration
+- Fluent API for async/sync task chaining
+- Built-in delay support with tick/Duration precision
+- Task cancellation support
+- Thread-safe error handling
+- Custom thread pool integration
 
 ## 📦 Installation
 
