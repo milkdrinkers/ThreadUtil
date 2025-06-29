@@ -1,6 +1,5 @@
 import com.vanniktech.maven.publish.JavaLibrary
 import com.vanniktech.maven.publish.JavadocJar
-import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     alias(libs.plugins.publisher)
@@ -56,7 +55,7 @@ mavenPublishing {
     ))
 
     // Publish to Maven Central
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    publishToMavenCentral(automaticRelease = true)
 
     // Sign all publications
     signAllPublications()

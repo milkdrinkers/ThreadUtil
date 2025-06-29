@@ -233,6 +233,4 @@ public class TaskQueueFolia<T> extends TaskQueue<T> {
     public TaskQueueFolia<Void> sync(Entity entity, Runnable runnable) {
         return sync(entity, Executors.callable(runnable, null));
     }
-
-    // End of folia specific methods
 }
