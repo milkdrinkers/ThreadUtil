@@ -153,3 +153,14 @@ You can find the license the source code and all assets are under [here](../LICE
 ## ❤️ Acknowledgments
 
 - **[Aikar:](https://github.com/aikar)** _For their excellent utility [__TaskChain__](https://github.com/aikar/TaskChain/), which this was inspired by. I highly recommend their library, providing the same features and more for any platform!_
+
+---
+
+## 🔥 Consuming Projects
+
+Here is a list of known projects using ThreadUtil:
+- [Minecraft-Plugin-Template](https://github.com/milkdrinkers/Minecraft-Plugin-Template) - *Provided by default in a Minecraft Plugin Template.*
+- [Maquillage](https://github.com/milkdrinkers/Maquillage) - *Maquillage a Minecraft cosmetics plugin.*
+- [Stewards](https://github.com/milkdrinkers/Stewards) - *Stewards a Minecraft Towny NPC extension plugin.*
+- [CharacterCards](https://github.com/Alathra/CharacterCards) - *CharacterCards is a Minecraft plugin allowing players to create cards describing their character.*
+- (*Add your project here!*)
