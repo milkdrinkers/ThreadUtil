@@ -18,6 +18,9 @@
         <img alt="GitHub Issues" src="https://img.shields.io/github/issues/milkdrinkers/ThreadUtil?style=for-the-badge&labelColor=141417">
     </a>
     <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/milkdrinkers/ThreadUtil?style=for-the-badge&labelColor=141417">
+    <a href="https://discord.gg/cG5uWvUcM6">
+        <img alt="Discord Server" src="https://img.shields.io/discord/1008300159333040158?style=for-the-badge&logo=discord&logoColor=ffffff&label=discord&labelColor=141417&color=%235865F2">
+    </a>
 </p>
 
 A fluent scheduling utility for Minecraft plugins, providing elegant async/sync runnable chaining with Bukkit/Spigot/Paper/Velocity integration.
