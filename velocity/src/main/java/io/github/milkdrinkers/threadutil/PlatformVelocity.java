@@ -2,11 +2,14 @@ package io.github.milkdrinkers.threadutil;
 
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.scheduler.ScheduledTask;
+import com.velocitypowered.api.scheduler.TaskStatus;
 import io.github.milkdrinkers.threadutil.exception.SchedulerShutdownTimeoutException;
 import io.github.milkdrinkers.threadutil.internal.ExecutorService;
 import io.github.milkdrinkers.threadutil.internal.ExecutorServiceBuilder;
 
 import java.time.Duration;
+import java.util.function.BooleanSupplier;
 
 public class PlatformVelocity implements PlatformAdapter {
     private final Plugin plugin;
@@ -58,6 +61,26 @@ public class PlatformVelocity implements PlatformAdapter {
     }
 
     @Override
+    public Cancellable repeatSync(long ticks, Runnable runnable, BooleanSupplier cancellationCheck) {
+        final ScheduledTask task = server.getScheduler()
+            .buildTask(plugin, () -> {
+                if (cancellationCheck.getAsBoolean()) {
+                    return;
+                }
+                runnable.run();
+            })
+            .repeat(fromTicks(ticks))
+            .schedule();
+
+        return new VelocityCancellable(task);
+    }
+
+    @Override
+    public Cancellable repeatAsync(long ticks, Runnable runnable, BooleanSupplier cancellationCheck) {
+        return PlatformAdapter.super.repeatAsync(ticks, runnable, cancellationCheck);
+    }
+
+    @Override
     public void shutdown(Duration duration) throws SchedulerShutdownTimeoutException {
         PlatformAdapter.super.shutdown(duration);
     }
@@ -68,5 +91,25 @@ public class PlatformVelocity implements PlatformAdapter {
 
     public Duration fromTicks(long ticks) {
         return Duration.ofMillis(ticks * 50L);
+    }
+
+    private static class VelocityCancellable implements Cancellable {
+        private final ScheduledTask task;
+
+        public VelocityCancellable(ScheduledTask task) {
+            this.task = task;
+        }
+
+        @Override
+        public void cancel() {
+            if (task != null) {
+                task.cancel();
+            }
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return task == null || task.status() == TaskStatus.CANCELLED;
+        }
     }
 }

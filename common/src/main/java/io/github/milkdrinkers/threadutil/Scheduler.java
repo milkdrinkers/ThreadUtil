@@ -265,6 +265,60 @@ public class Scheduler {
     }
 
     /**
+     * Starts a new looping task queue that executes asynchronously at regular intervals.
+     * The loop continues until TaskContext.cancel() is called.
+     *
+     * @param consumer   The bi-consumer to execute repeatedly
+     * @param interval The number of ticks between iterations
+     * @return A new {@link TaskQueue} instance
+     */
+    public static TaskQueue<Void> loopAsync(BiConsumer<Void, TaskContext> consumer, long interval) {
+        if (!isInitialized)
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new TaskQueue<>(getPlatform(), getErrorHandler(), new LoopTask<>(consumer, interval, false));
+    }
+
+    /**
+     * Starts a new looping task queue that executes asynchronously at regular intervals.
+     * The loop continues until TaskContext.cancel() is called.
+     *
+     * @param consumer The bi-consumer to execute repeatedly
+     * @param duration The duration between iterations
+     * @return A new {@link TaskQueue} instance
+     */
+    public static TaskQueue<Void> loopAsync(BiConsumer<Void, TaskContext> consumer, Duration duration) {
+        return loopAsync(consumer, platform.toTicks(duration));
+    }
+
+    /**
+     * Starts a new looping task queue that executes synchronously at regular intervals.
+     * The loop continues until TaskContext.cancel() is called.
+     *
+     * @param consumer   The bi-consumer to execute repeatedly
+     * @param interval The number of ticks between iterations
+     * @return A new {@link TaskQueue} instance
+     */
+    public static TaskQueue<Void> loopSync(BiConsumer<Void, TaskContext> consumer, long interval) {
+        if (!isInitialized)
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new TaskQueue<>(getPlatform(), getErrorHandler(), new LoopTask<>(consumer, interval, true));
+    }
+
+    /**
+     * Starts a new looping task queue that executes synchronously at regular intervals.
+     * The loop continues until TaskContext.cancel() is called.
+     *
+     * @param consumer The bi-consumer to execute repeatedly
+     * @param duration The duration between iterations
+     * @return A new {@link TaskQueue} instance
+     */
+    public static TaskQueue<Void> loopSync(BiConsumer<Void, TaskContext> consumer, Duration duration) {
+        return loopSync(consumer, platform.toTicks(duration));
+    }
+
+    /**
      * Starts a new delayed task queue.
      *
      * @param ticks The number of ticks to wait (20 ticks = 1 second)

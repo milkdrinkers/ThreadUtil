@@ -3,11 +3,14 @@ package io.github.milkdrinkers.threadutil;
 import io.github.milkdrinkers.threadutil.exception.SchedulerShutdownTimeoutException;
 import io.github.milkdrinkers.threadutil.internal.ExecutorService;
 import io.github.milkdrinkers.threadutil.internal.ExecutorServiceBuilder;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 
 public class PlatformFolia implements PlatformAdapter {
     private final Plugin plugin;
@@ -73,6 +76,38 @@ public class PlatformFolia implements PlatformAdapter {
     }
 
     @Override
+    public Cancellable repeatSync(long ticks, Runnable runnable, BooleanSupplier cancellationCheck) {
+        if (!plugin.isEnabled()) {
+            return new PaperCancellable(null);
+        }
+
+        final ScheduledTask task = plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(plugin, (t) -> {
+            if (cancellationCheck.getAsBoolean()) {
+                return; // Cancelled by the wrapper
+            }
+            runnable.run();
+        }, 0L, ticks);
+
+        return new PaperCancellable(task);
+    }
+
+    @Override
+    public Cancellable repeatAsync(long ticks, Runnable runnable, BooleanSupplier cancellationCheck) {
+        if (!plugin.isEnabled()) {
+            return new PaperCancellable(null);
+        }
+
+        final ScheduledTask task = plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, (t) -> {
+            if (cancellationCheck.getAsBoolean()) {
+                return; // Cancelled by the wrapper
+            }
+            runnable.run();
+        }, 0L, ticks * 50L, TimeUnit.MILLISECONDS);
+
+        return new PaperCancellable(task);
+    }
+
+    @Override
     public void shutdown(Duration duration) throws SchedulerShutdownTimeoutException {
         PlatformAdapter.super.shutdown(duration);
     }
@@ -83,5 +118,25 @@ public class PlatformFolia implements PlatformAdapter {
 
     public Duration fromTicks(long ticks) {
         return Duration.ofMillis(ticks * 50L);
+    }
+
+    private static class PaperCancellable implements Cancellable {
+        private final ScheduledTask task;
+
+        public PaperCancellable(ScheduledTask task) {
+            this.task = task;
+        }
+
+        @Override
+        public void cancel() {
+            if (task != null) {
+                task.cancel();
+            }
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return task == null || task.isCancelled();
+        }
     }
 }

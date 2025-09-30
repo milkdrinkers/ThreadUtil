@@ -193,6 +193,54 @@ public class TaskQueue<T> {
     }
 
     /**
+     * Adds a looping task that executes asynchronously at regular intervals.
+     * The loop continues until the TaskContext.cancel() is called.
+     *
+     * @param consumer   The bi-consumer to execute repeatedly
+     * @param interval The number of ticks between iterations
+     * @return The current {@link TaskQueue} with the loop added
+     */
+    public TaskQueue<T> loopAsync(BiConsumer<T, TaskContext> consumer, long interval) {
+        return addTask(new LoopTask<>(consumer, interval, false));
+    }
+
+    /**
+     * Adds a looping task that executes asynchronously at regular intervals.
+     * The loop continues until the TaskContext.cancel() is called.
+     *
+     * @param consumer The bi-consumer to execute repeatedly
+     * @param duration The duration between iterations
+     * @return The current {@link TaskQueue} with the loop added
+     */
+    public TaskQueue<T> loopAsync(BiConsumer<T, TaskContext> consumer, Duration duration) {
+        return loopAsync(consumer, platform.toTicks(duration));
+    }
+
+    /**
+     * Adds a looping task that executes synchronously at regular intervals.
+     * The loop continues until the TaskContext.cancel() is called.
+     *
+     * @param consumer   The bi-consumer to execute repeatedly
+     * @param interval The number of ticks between iterations
+     * @return The current {@link TaskQueue} with the loop added
+     */
+    public TaskQueue<T> loopSync(BiConsumer<T, TaskContext> consumer, long interval) {
+        return addTask(new LoopTask<>(consumer, interval, true));
+    }
+
+    /**
+     * Adds a looping task that executes synchronously at regular intervals.
+     * The loop continues until the TaskContext.cancel() is called.
+     *
+     * @param consumer The bi-consumer to execute repeatedly
+     * @param duration The duration between iterations
+     * @return The current {@link TaskQueue} with the loop added
+     */
+    public TaskQueue<T> loopSync(BiConsumer<T, TaskContext> consumer, Duration duration) {
+        return loopSync(consumer, platform.toTicks(duration));
+    }
+
+    /**
      * Adds a delay before the next task in the queue.
      *
      * @param ticks The number of ticks to wait (20 ticks = 1 second)

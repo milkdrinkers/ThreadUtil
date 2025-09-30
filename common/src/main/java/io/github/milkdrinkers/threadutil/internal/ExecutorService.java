@@ -23,6 +23,15 @@ public interface ExecutorService {
     void run(Runnable runnable);
 
     /**
+     * Submits a runnable to be executed by the thread pool after a delay
+     *
+     * @param runnable runnable
+     * @param delay    delay before execution
+     */
+    @ApiStatus.Internal
+    void runLater(Runnable runnable, Duration delay);
+
+    /**
      * Logic run on shutdown of the implementation platform
      *
      * @param duration maximum shutdown duration

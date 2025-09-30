@@ -3,6 +3,7 @@ package io.github.milkdrinkers.threadutil.internal;
 import io.github.milkdrinkers.threadutil.exception.SchedulerShutdownTimeoutException;
 
 import java.time.Duration;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -12,11 +13,14 @@ import java.util.concurrent.TimeUnit;
 public class ExecutorServiceImpl implements ExecutorService {
     private final String implementationName;
     private final ThreadPoolExecutor threadPool;
+    private final ScheduledThreadPoolExecutor scheduledThreadPool;
     private final Duration shutdownTimeout;
 
     protected ExecutorServiceImpl(String implementationName, ThreadPoolExecutor threadPool, Duration shutdownTimeout) {
         this.implementationName = implementationName;
         this.threadPool = threadPool;
+        this.scheduledThreadPool = new ScheduledThreadPoolExecutor(1);
+        this.scheduledThreadPool.setRemoveOnCancelPolicy(true);
         this.shutdownTimeout = shutdownTimeout;
     }
 
@@ -31,13 +35,23 @@ public class ExecutorServiceImpl implements ExecutorService {
     }
 
     @Override
+    public void runLater(Runnable runnable, Duration delay) {
+        scheduledThreadPool.schedule(() -> threadPool.submit(runnable), delay.toMillis(), TimeUnit.MILLISECONDS);
+    }
+
+    @Override
     @SuppressWarnings("CallToPrintStackTrace")
     public void shutdown(Duration duration) throws SchedulerShutdownTimeoutException {
         try {
             threadPool.setRejectedExecutionHandler((runnable, executor) -> runnable.run());
             threadPool.shutdown();
-            if (!threadPool.awaitTermination(shutdownTimeout.toMillis(), TimeUnit.MILLISECONDS)) {
-                throw new SchedulerShutdownTimeoutException("Scheduler \"" + implementationName + "\" did not shut down in time" + duration.getSeconds() + " seconds");
+            scheduledThreadPool.shutdown();
+
+            final boolean threadPoolShutdown = threadPool.awaitTermination(shutdownTimeout.toMillis(), TimeUnit.MILLISECONDS);
+            final boolean scheduledShutdown = scheduledThreadPool.awaitTermination(shutdownTimeout.toMillis(), TimeUnit.MILLISECONDS);
+
+            if (!threadPoolShutdown || !scheduledShutdown) {
+                throw new SchedulerShutdownTimeoutException("Scheduler \"" + implementationName + "\" did not shut down in time: " + duration.getSeconds() + " seconds");
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

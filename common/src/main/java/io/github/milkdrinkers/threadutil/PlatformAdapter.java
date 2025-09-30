@@ -4,6 +4,8 @@ import io.github.milkdrinkers.threadutil.exception.SchedulerShutdownTimeoutExcep
 import io.github.milkdrinkers.threadutil.internal.ExecutorService;
 
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BooleanSupplier;
 
 /**
  * A platform adapter provides a way for ThreadUtil to integrate natively with a platform.
@@ -59,6 +61,62 @@ public interface PlatformAdapter {
     void runSyncLater(long ticks, Runnable runnable);
 
     /**
+     * Schedule a runnable to be executed repeatedly synchronously on the main thread.
+     * The task will continue executing until the cancellationCheck returns true.
+     *
+     * @param ticks             interval between executions in ticks
+     * @param runnable          the task to execute
+     * @param cancellationCheck supplier that returns true when the task should be cancelled
+     * @return a Cancellable handle to stop the repeating task
+     */
+    Cancellable repeatSync(long ticks, Runnable runnable, BooleanSupplier cancellationCheck);
+
+    /**
+     * Schedule a runnable to be executed repeatedly asynchronously.
+     * The task will continue executing until the cancellationCheck returns true.
+     *
+     * @param ticks             interval between executions in ticks
+     * @param runnable          the task to execute
+     * @param cancellationCheck supplier that returns true when the task should be cancelled
+     * @return a Cancellable handle to stop the repeating task
+     */
+    default Cancellable repeatAsync(long ticks, Runnable runnable, BooleanSupplier cancellationCheck) {
+        final AtomicBoolean cancelled = new java.util.concurrent.atomic.AtomicBoolean(false);
+
+        final Runnable repeater = new Runnable() {
+            @Override
+            public void run() {
+                if (cancelled.get() || cancellationCheck.getAsBoolean()) {
+                    return;
+                }
+
+                try {
+                    runnable.run();
+                } finally {
+                    if (!cancelled.get() && !cancellationCheck.getAsBoolean()) { // Schedule next iteration if not cancelled
+                        getExecutorService().runLater(this, fromTicks(ticks));
+                    }
+                }
+            }
+        };
+
+        // Start the first iteration immediately
+        getExecutorService().run(repeater);
+
+        return new Cancellable() {
+            @Override
+            public void cancel() {
+                cancelled.set(true);
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return cancelled.get();
+            }
+        };
+    }
+
+    /**
      * A method executed when the {@link PlatformAdapter} is shutting down
      *
      * @param duration duration
@@ -81,4 +139,20 @@ public interface PlatformAdapter {
      * @return duration
      */
     Duration fromTicks(long ticks);
+
+    /**
+     * Interface for cancellable tasks
+     */
+    interface Cancellable {
+        /**
+         * Cancel the repeating task
+         */
+        void cancel();
+
+        /**
+         * Check if the task has been cancelled
+         * @return true if cancelled
+         */
+        boolean isCancelled();
+    }
 }

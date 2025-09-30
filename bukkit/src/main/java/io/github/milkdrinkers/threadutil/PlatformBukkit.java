@@ -5,8 +5,10 @@ import io.github.milkdrinkers.threadutil.internal.ExecutorService;
 import io.github.milkdrinkers.threadutil.internal.ExecutorServiceBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
+import java.util.function.BooleanSupplier;
 
 public class PlatformBukkit implements PlatformAdapter {
     private final Plugin plugin;
@@ -56,6 +58,38 @@ public class PlatformBukkit implements PlatformAdapter {
     }
 
     @Override
+    public Cancellable repeatSync(long ticks, Runnable runnable, BooleanSupplier cancellationCheck) {
+        if (!plugin.isEnabled()) {
+            return new BukkitCancellable(null);
+        }
+
+        final BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            if (cancellationCheck.getAsBoolean()) {
+                return; // Cancelled by the wrapper
+            }
+            runnable.run();
+        }, 0L, ticks);
+
+        return new BukkitCancellable(task);
+    }
+
+    @Override
+    public Cancellable repeatAsync(long ticks, Runnable runnable, BooleanSupplier cancellationCheck) {
+        if (!plugin.isEnabled()) {
+            return new BukkitCancellable(null);
+        }
+
+        final BukkitTask task = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            if (cancellationCheck.getAsBoolean()) {
+                return; // Cancelled by the wrapper
+            }
+            runnable.run();
+        }, 0L, ticks);
+
+        return new BukkitCancellable(task);
+    }
+
+    @Override
     public void shutdown(Duration duration) throws SchedulerShutdownTimeoutException {
         PlatformAdapter.super.shutdown(duration);
     }
@@ -66,5 +100,25 @@ public class PlatformBukkit implements PlatformAdapter {
 
     public Duration fromTicks(long ticks) {
         return Duration.ofMillis(ticks * 50L);
+    }
+
+    private static class BukkitCancellable implements Cancellable {
+        private final BukkitTask task;
+
+        public BukkitCancellable(BukkitTask task) {
+            this.task = task;
+        }
+
+        @Override
+        public void cancel() {
+            if (task != null) {
+                task.cancel();
+            }
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return task == null || task.isCancelled();
+        }
     }
 }
