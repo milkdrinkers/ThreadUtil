@@ -157,7 +157,7 @@ public class FoliaScheduler extends Scheduler {
      * Starts a new looping task queue that executes asynchronously at regular intervals.
      * The loop continues until TaskContext.cancel() is called.
      *
-     * @param consumer   The bi-consumer to execute repeatedly
+     * @param consumer The bi-consumer to execute repeatedly
      * @param interval The number of ticks between iterations
      * @return A new {@link TaskQueueFolia} instance
      */
@@ -184,7 +184,7 @@ public class FoliaScheduler extends Scheduler {
      * Starts a new looping task queue that executes synchronously at regular intervals.
      * The loop continues until TaskContext.cancel() is called.
      *
-     * @param consumer   The bi-consumer to execute repeatedly
+     * @param consumer The bi-consumer to execute repeatedly
      * @param interval The number of ticks between iterations
      * @return A new {@link TaskQueueFolia} instance
      */

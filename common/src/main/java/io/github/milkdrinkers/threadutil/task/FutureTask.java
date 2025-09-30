@@ -28,10 +28,10 @@ public class FutureTask<I, O> implements Task<I, O> {
 
             try {
                 final CompletableFuture<O> future = futureSupplier.apply(input);
-                
+
                 future.whenComplete((result, throwable) -> {
                     if (cancelled.get()) return;
-                    
+
                     if (throwable != null) {
                         errorHandler.accept(throwable);
                     } else {

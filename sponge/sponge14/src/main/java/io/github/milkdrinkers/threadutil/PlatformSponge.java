@@ -3,7 +3,6 @@ package io.github.milkdrinkers.threadutil;
 import io.github.milkdrinkers.threadutil.exception.SchedulerShutdownTimeoutException;
 import io.github.milkdrinkers.threadutil.internal.ExecutorService;
 import io.github.milkdrinkers.threadutil.internal.ExecutorServiceBuilder;
-import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.scheduler.ScheduledTask;
 import org.spongepowered.api.scheduler.Task;

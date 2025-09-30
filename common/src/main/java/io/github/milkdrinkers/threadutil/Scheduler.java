@@ -266,7 +266,7 @@ public class Scheduler {
      * Starts a new looping task queue that executes asynchronously at regular intervals.
      * The loop continues until TaskContext.cancel() is called.
      *
-     * @param consumer   The bi-consumer to execute repeatedly
+     * @param consumer The bi-consumer to execute repeatedly
      * @param interval The number of ticks between iterations
      * @return A new {@link TaskQueue} instance
      */
@@ -293,7 +293,7 @@ public class Scheduler {
      * Starts a new looping task queue that executes synchronously at regular intervals.
      * The loop continues until TaskContext.cancel() is called.
      *
-     * @param consumer   The bi-consumer to execute repeatedly
+     * @param consumer The bi-consumer to execute repeatedly
      * @param interval The number of ticks between iterations
      * @return A new {@link TaskQueue} instance
      */

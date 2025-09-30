@@ -14,9 +14,9 @@ public class TaskContext {
 
     /**
      * Cancels the entire task queue, preventing any subsequent tasks from executing.
-     * 
+     *
      * @implNote This does not stop the currently executing task, but prevents
-     *           all remaining tasks in the queue from running.
+     * all remaining tasks in the queue from running.
      */
     public void cancel() {
         isCancelledFlag.set(true);
@@ -24,7 +24,7 @@ public class TaskContext {
 
     /**
      * Checks if the task queue has been cancelled.
-     * 
+     *
      * @return true if the task queue is cancelled
      */
     public boolean isCancelled() {

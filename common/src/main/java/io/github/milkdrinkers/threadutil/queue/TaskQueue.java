@@ -196,7 +196,7 @@ public class TaskQueue<T> {
      * Adds a looping task that executes asynchronously at regular intervals.
      * The loop continues until the TaskContext.cancel() is called.
      *
-     * @param consumer   The bi-consumer to execute repeatedly
+     * @param consumer The bi-consumer to execute repeatedly
      * @param interval The number of ticks between iterations
      * @return The current {@link TaskQueue} with the loop added
      */
@@ -220,7 +220,7 @@ public class TaskQueue<T> {
      * Adds a looping task that executes synchronously at regular intervals.
      * The loop continues until the TaskContext.cancel() is called.
      *
-     * @param consumer   The bi-consumer to execute repeatedly
+     * @param consumer The bi-consumer to execute repeatedly
      * @param interval The number of ticks between iterations
      * @return The current {@link TaskQueue} with the loop added
      */
@@ -349,8 +349,8 @@ public class TaskQueue<T> {
      * Internal utility method to convert a {@link CompletableFuture} to a {@link Function}.
      *
      * @param future future
-     * @param <T>      the input type of the future
-     * @param <R>      the return type of the future
+     * @param <T>    the input type of the future
+     * @param <R>    the return type of the future
      * @return function
      */
     @ApiStatus.Internal

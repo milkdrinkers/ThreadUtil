@@ -128,6 +128,7 @@ public interface PlatformAdapter {
 
     /**
      * A method to convert duration into Minecraft ticks (20 per second).
+     *
      * @param duration duration
      * @return ticks
      */
@@ -135,6 +136,7 @@ public interface PlatformAdapter {
 
     /**
      * A method to convert Minecraft ticks (20 per second) into a Duration
+     *
      * @param ticks ticks
      * @return duration
      */
@@ -151,6 +153,7 @@ public interface PlatformAdapter {
 
         /**
          * Check if the task has been cancelled
+         *
          * @return true if cancelled
          */
         boolean isCancelled();

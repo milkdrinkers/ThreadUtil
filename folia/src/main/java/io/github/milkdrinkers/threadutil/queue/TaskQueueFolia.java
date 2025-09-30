@@ -1,7 +1,8 @@
 package io.github.milkdrinkers.threadutil.queue;
 
 import io.github.milkdrinkers.threadutil.PlatformAdapter;
-import io.github.milkdrinkers.threadutil.task.*;
+import io.github.milkdrinkers.threadutil.task.FoliaSyncTask;
+import io.github.milkdrinkers.threadutil.task.Task;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
