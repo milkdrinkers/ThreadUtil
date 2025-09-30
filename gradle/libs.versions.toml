@@ -12,6 +12,7 @@ sponge-api10 = "org.spongepowered:spongeapi:10.0.0"
 sponge-api11 = "org.spongepowered:spongeapi:11.0.0"
 sponge-api12 = "org.spongepowered:spongeapi:12.0.0"
 sponge-api13 = "org.spongepowered:spongeapi:13.0.0"
+sponge-api14 = "org.spongepowered:spongeapi:14.0.0"
 
 junit-bom = "org.junit:junit-bom:5.13.4"
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
@@ -22,4 +23,4 @@ junit = ["junit-jupiter", "junit-platform"]
 
 [plugins]
 publisher = "com.vanniktech.maven.publish:0.34.0"
-shadow = "io.github.goooler.shadow:8.1.8"
+shadow = "com.gradleup.shadow:9.2.2"
