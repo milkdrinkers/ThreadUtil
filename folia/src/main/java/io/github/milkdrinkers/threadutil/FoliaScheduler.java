@@ -2,16 +2,15 @@ package io.github.milkdrinkers.threadutil;
 
 import io.github.milkdrinkers.threadutil.exception.SchedulerNotInitializedException;
 import io.github.milkdrinkers.threadutil.queue.TaskQueueFolia;
-import io.github.milkdrinkers.threadutil.task.AsyncTask;
-import io.github.milkdrinkers.threadutil.task.DelayTask;
-import io.github.milkdrinkers.threadutil.task.FoliaSyncTask;
-import io.github.milkdrinkers.threadutil.task.SyncTask;
+import io.github.milkdrinkers.threadutil.task.*;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
 import java.time.Duration;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
@@ -24,6 +23,7 @@ public class FoliaScheduler extends Scheduler {
 
     /**
      * Starts a new asynchronous task queue.
+     * Supports regular values and CompletableFuture return types.
      *
      * @param function The operation to execute asynchronously
      * @param <R>      The return type of the initial task
@@ -37,6 +37,22 @@ public class FoliaScheduler extends Scheduler {
     }
 
     /**
+     * Starts a new asynchronous task queue with access to task context.
+     * Supports regular values and CompletableFuture return types.
+     *
+     * @param function The operation to execute asynchronously
+     * @param <R>      The return type of the initial task
+     * @return A new {@link TaskQueueFolia} instance
+     */
+    public static <R> TaskQueueFolia<R> async(java.util.function.BiFunction<Void, TaskContext, R> function) {
+        if (!isInitialized())
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new TaskQueueFolia<>(getPlatform(), getErrorHandler(),
+            new AsyncTask<>(input -> function.apply(input, new TaskContext(new java.util.concurrent.atomic.AtomicBoolean(false)))));
+    }
+
+    /**
      * Starts a new asynchronous task queue.
      *
      * @param callable The operation to execute asynchronously
@@ -44,7 +60,7 @@ public class FoliaScheduler extends Scheduler {
      * @return A new {@link TaskQueueFolia} instance
      */
     public static <R> TaskQueueFolia<R> async(Callable<R> callable) {
-        return async(convertToFunction(callable));
+        return FoliaScheduler.async(convertToFunction(callable));
     }
 
     /**
@@ -54,21 +70,52 @@ public class FoliaScheduler extends Scheduler {
      * @return A new {@link TaskQueueFolia} instance
      */
     public static TaskQueueFolia<Void> async(Runnable runnable) {
-        return async(Executors.callable(runnable, null));
+        return FoliaScheduler.async(Executors.callable(runnable, null));
+    }
+
+    /**
+     * Starts a new asynchronous CompletableFuture task queue.
+     *
+     * @param future The CompletableFuture to execute
+     * @param <R>    The return type of the initial task
+     * @return A new {@link TaskQueueFolia} instance
+     */
+    public static <R> TaskQueueFolia<R> async(CompletableFuture<R> future) {
+        if (!isInitialized())
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new TaskQueueFolia<>(getPlatform(), getErrorHandler(), new FutureTask<>(_ignored -> future, false));
     }
 
     /**
      * Starts a new synchronous task queue.
+     * Supports regular values and CompletableFuture return types.
      *
      * @param function The operation to execute on the main thread
      * @param <R>      The return type of the initial task
      * @return A new {@link TaskQueueFolia} instance
      */
     public static <R> TaskQueueFolia<R> sync(Function<Void, R> function) {
-        if (!Scheduler.isInitialized())
+        if (!isInitialized())
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
         return new TaskQueueFolia<>(getPlatform(), getErrorHandler(), new SyncTask<>(function));
+    }
+
+    /**
+     * Starts a new synchronous task queue with access to task context.
+     * Supports regular values and CompletableFuture return types.
+     *
+     * @param function The operation to execute on the main thread
+     * @param <R>      The return type of the initial task
+     * @return A new {@link TaskQueueFolia} instance
+     */
+    public static <R> TaskQueueFolia<R> sync(java.util.function.BiFunction<Void, TaskContext, R> function) {
+        if (!isInitialized())
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new TaskQueueFolia<>(getPlatform(), getErrorHandler(),
+            new SyncTask<>(input -> function.apply(input, new TaskContext(new java.util.concurrent.atomic.AtomicBoolean(false)))));
     }
 
     /**
@@ -90,6 +137,74 @@ public class FoliaScheduler extends Scheduler {
      */
     public static TaskQueueFolia<Void> sync(Runnable runnable) {
         return FoliaScheduler.sync(Executors.callable(runnable, null));
+    }
+
+    /**
+     * Starts a new synchronous CompletableFuture task queue.
+     *
+     * @param future The CompletableFuture to execute
+     * @param <R>    The return type of the initial task
+     * @return A new {@link TaskQueueFolia} instance
+     */
+    public static <R> TaskQueueFolia<R> sync(CompletableFuture<R> future) {
+        if (!isInitialized())
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new TaskQueueFolia<>(getPlatform(), getErrorHandler(), new FutureTask<>(_ignored -> future, true));
+    }
+
+    /**
+     * Starts a new looping task queue that executes asynchronously at regular intervals.
+     * The loop continues until TaskContext.cancel() is called.
+     *
+     * @param consumer   The bi-consumer to execute repeatedly
+     * @param interval The number of ticks between iterations
+     * @return A new {@link TaskQueueFolia} instance
+     */
+    public static TaskQueueFolia<Void> loopAsync(BiConsumer<Void, TaskContext> consumer, long interval) {
+        if (!isInitialized())
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new TaskQueueFolia<>(getPlatform(), getErrorHandler(), new LoopTask<>(consumer, interval, false));
+    }
+
+    /**
+     * Starts a new looping task queue that executes asynchronously at regular intervals.
+     * The loop continues until TaskContext.cancel() is called.
+     *
+     * @param consumer The bi-consumer to execute repeatedly
+     * @param duration The duration between iterations
+     * @return A new {@link TaskQueueFolia} instance
+     */
+    public static TaskQueueFolia<Void> loopAsync(BiConsumer<Void, TaskContext> consumer, Duration duration) {
+        return loopAsync(consumer, getPlatform().toTicks(duration));
+    }
+
+    /**
+     * Starts a new looping task queue that executes synchronously at regular intervals.
+     * The loop continues until TaskContext.cancel() is called.
+     *
+     * @param consumer   The bi-consumer to execute repeatedly
+     * @param interval The number of ticks between iterations
+     * @return A new {@link TaskQueueFolia} instance
+     */
+    public static TaskQueueFolia<Void> loopSync(BiConsumer<Void, TaskContext> consumer, long interval) {
+        if (!isInitialized())
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new TaskQueueFolia<>(getPlatform(), getErrorHandler(), new LoopTask<>(consumer, interval, true));
+    }
+
+    /**
+     * Starts a new looping task queue that executes synchronously at regular intervals.
+     * The loop continues until TaskContext.cancel() is called.
+     *
+     * @param consumer The bi-consumer to execute repeatedly
+     * @param duration The duration between iterations
+     * @return A new {@link TaskQueueFolia} instance
+     */
+    public static TaskQueueFolia<Void> loopSync(BiConsumer<Void, TaskContext> consumer, Duration duration) {
+        return loopSync(consumer, getPlatform().toTicks(duration));
     }
 
     /**

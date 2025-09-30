@@ -139,7 +139,7 @@ public class Scheduler {
      * @return A new {@link TaskQueue} instance
      */
     public static <R> TaskQueue<R> async(Function<Void, R> function) {
-        if (!isInitialized)
+        if (!isInitialized())
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
         return new TaskQueue<>(getPlatform(), getErrorHandler(), new AsyncTask<>(function));
@@ -154,7 +154,7 @@ public class Scheduler {
      * @return A new {@link TaskQueue} instance
      */
     public static <R> TaskQueue<R> async(java.util.function.BiFunction<Void, TaskContext, R> function) {
-        if (!isInitialized)
+        if (!isInitialized())
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
         return new TaskQueue<>(getPlatform(), getErrorHandler(),
@@ -190,13 +190,11 @@ public class Scheduler {
      * @return A new {@link TaskQueue} instance
      */
     public static <R> TaskQueue<R> async(CompletableFuture<R> future) {
-        if (!isInitialized)
+        if (!isInitialized())
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
         return new TaskQueue<>(getPlatform(), getErrorHandler(), new FutureTask<>(_ignored -> future, false));
     }
-
-    // ========== SYNC METHODS ==========
 
     /**
      * Starts a new synchronous task queue.
@@ -207,7 +205,7 @@ public class Scheduler {
      * @return A new {@link TaskQueue} instance
      */
     public static <R> TaskQueue<R> sync(Function<Void, R> function) {
-        if (!isInitialized)
+        if (!isInitialized())
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
         return new TaskQueue<>(getPlatform(), getErrorHandler(), new SyncTask<>(function));
@@ -222,7 +220,7 @@ public class Scheduler {
      * @return A new {@link TaskQueue} instance
      */
     public static <R> TaskQueue<R> sync(java.util.function.BiFunction<Void, TaskContext, R> function) {
-        if (!isInitialized)
+        if (!isInitialized())
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
         return new TaskQueue<>(getPlatform(), getErrorHandler(),
@@ -258,7 +256,7 @@ public class Scheduler {
      * @return A new {@link TaskQueue} instance
      */
     public static <R> TaskQueue<R> sync(CompletableFuture<R> future) {
-        if (!isInitialized)
+        if (!isInitialized())
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
         return new TaskQueue<>(getPlatform(), getErrorHandler(), new FutureTask<>(_ignored -> future, true));
@@ -273,7 +271,7 @@ public class Scheduler {
      * @return A new {@link TaskQueue} instance
      */
     public static TaskQueue<Void> loopAsync(BiConsumer<Void, TaskContext> consumer, long interval) {
-        if (!isInitialized)
+        if (!isInitialized())
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
         return new TaskQueue<>(getPlatform(), getErrorHandler(), new LoopTask<>(consumer, interval, false));
@@ -288,7 +286,7 @@ public class Scheduler {
      * @return A new {@link TaskQueue} instance
      */
     public static TaskQueue<Void> loopAsync(BiConsumer<Void, TaskContext> consumer, Duration duration) {
-        return loopAsync(consumer, platform.toTicks(duration));
+        return loopAsync(consumer, getPlatform().toTicks(duration));
     }
 
     /**
@@ -300,7 +298,7 @@ public class Scheduler {
      * @return A new {@link TaskQueue} instance
      */
     public static TaskQueue<Void> loopSync(BiConsumer<Void, TaskContext> consumer, long interval) {
-        if (!isInitialized)
+        if (!isInitialized())
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
         return new TaskQueue<>(getPlatform(), getErrorHandler(), new LoopTask<>(consumer, interval, true));
@@ -315,7 +313,7 @@ public class Scheduler {
      * @return A new {@link TaskQueue} instance
      */
     public static TaskQueue<Void> loopSync(BiConsumer<Void, TaskContext> consumer, Duration duration) {
-        return loopSync(consumer, platform.toTicks(duration));
+        return loopSync(consumer, getPlatform().toTicks(duration));
     }
 
     /**
@@ -325,7 +323,7 @@ public class Scheduler {
      * @return The current {@link TaskQueue} with delay added
      */
     public static TaskQueue<Void> delay(long ticks) {
-        if (!isInitialized)
+        if (!isInitialized())
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
         return new TaskQueue<>(getPlatform(), getErrorHandler(), new DelayTask<>(ticks));
@@ -338,7 +336,7 @@ public class Scheduler {
      * @return The current {@link TaskQueue} with delay added
      */
     public static TaskQueue<Void> delay(Duration duration) {
-        return delay(platform.toTicks(duration));
+        return delay(getPlatform().toTicks(duration));
     }
 
     /**
