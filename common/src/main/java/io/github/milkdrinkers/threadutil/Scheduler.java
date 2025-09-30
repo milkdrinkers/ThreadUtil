@@ -5,15 +5,14 @@ import io.github.milkdrinkers.threadutil.exception.SchedulerInitializationExcept
 import io.github.milkdrinkers.threadutil.exception.SchedulerNotInitializedException;
 import io.github.milkdrinkers.threadutil.exception.SchedulerShutdownTimeoutException;
 import io.github.milkdrinkers.threadutil.queue.TaskQueue;
-import io.github.milkdrinkers.threadutil.task.AsyncTask;
-import io.github.milkdrinkers.threadutil.task.DelayTask;
-import io.github.milkdrinkers.threadutil.task.SyncTask;
-import io.github.milkdrinkers.threadutil.task.Task;
+import io.github.milkdrinkers.threadutil.task.*;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.time.Duration;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -133,6 +132,7 @@ public class Scheduler {
 
     /**
      * Starts a new asynchronous task queue.
+     * Supports regular values and CompletableFuture return types.
      *
      * @param function The operation to execute asynchronously
      * @param <R>      The return type of the initial task
@@ -143,6 +143,22 @@ public class Scheduler {
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
         return new TaskQueue<>(getPlatform(), getErrorHandler(), new AsyncTask<>(function));
+    }
+
+    /**
+     * Starts a new asynchronous task queue with access to task context.
+     * Supports regular values and CompletableFuture return types.
+     *
+     * @param function The operation to execute asynchronously
+     * @param <R>      The return type of the initial task
+     * @return A new {@link TaskQueue} instance
+     */
+    public static <R> TaskQueue<R> async(java.util.function.BiFunction<Void, TaskContext, R> function) {
+        if (!isInitialized)
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new TaskQueue<>(getPlatform(), getErrorHandler(),
+            new AsyncTask<>(input -> function.apply(input, new TaskContext(new java.util.concurrent.atomic.AtomicBoolean(false)))));
     }
 
     /**
@@ -167,7 +183,24 @@ public class Scheduler {
     }
 
     /**
+     * Starts a new asynchronous CompletableFuture task queue.
+     *
+     * @param future The CompletableFuture to execute
+     * @param <R>    The return type of the initial task
+     * @return A new {@link TaskQueue} instance
+     */
+    public static <R> TaskQueue<R> async(CompletableFuture<R> future) {
+        if (!isInitialized)
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new TaskQueue<>(getPlatform(), getErrorHandler(), new FutureTask<>(_ignored -> future, false));
+    }
+
+    // ========== SYNC METHODS ==========
+
+    /**
      * Starts a new synchronous task queue.
+     * Supports regular values and CompletableFuture return types.
      *
      * @param function The operation to execute on the main thread
      * @param <R>      The return type of the initial task
@@ -178,6 +211,22 @@ public class Scheduler {
             throw new SchedulerNotInitializedException("Scheduler is not initialized");
 
         return new TaskQueue<>(getPlatform(), getErrorHandler(), new SyncTask<>(function));
+    }
+
+    /**
+     * Starts a new synchronous task queue with access to task context.
+     * Supports regular values and CompletableFuture return types.
+     *
+     * @param function The operation to execute on the main thread
+     * @param <R>      The return type of the initial task
+     * @return A new {@link TaskQueue} instance
+     */
+    public static <R> TaskQueue<R> sync(java.util.function.BiFunction<Void, TaskContext, R> function) {
+        if (!isInitialized)
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new TaskQueue<>(getPlatform(), getErrorHandler(),
+            new SyncTask<>(input -> function.apply(input, new TaskContext(new java.util.concurrent.atomic.AtomicBoolean(false)))));
     }
 
     /**
@@ -199,6 +248,20 @@ public class Scheduler {
      */
     public static TaskQueue<Void> sync(Runnable runnable) {
         return Scheduler.sync(Executors.callable(runnable, null));
+    }
+
+    /**
+     * Starts a new synchronous CompletableFuture task queue.
+     *
+     * @param future The CompletableFuture to execute
+     * @param <R>    The return type of the initial task
+     * @return A new {@link TaskQueue} instance
+     */
+    public static <R> TaskQueue<R> sync(CompletableFuture<R> future) {
+        if (!isInitialized)
+            throw new SchedulerNotInitializedException("Scheduler is not initialized");
+
+        return new TaskQueue<>(getPlatform(), getErrorHandler(), new FutureTask<>(_ignored -> future, true));
     }
 
     /**

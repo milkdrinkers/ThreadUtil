@@ -7,6 +7,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.time.Duration;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,6 +36,7 @@ public class TaskQueue<T> {
 
     /**
      * Adds an asynchronous processing task to the queue.
+     * Supports regular values and CompletableFuture return types.
      *
      * @param function The function to execute asynchronously
      * @param <R>      The return type of this task
@@ -46,6 +48,7 @@ public class TaskQueue<T> {
 
     /**
      * Adds an asynchronous processing task with access to task context.
+     * Supports regular values and CompletableFuture return types.
      *
      * @param function The bi-function to execute asynchronously (receives input and TaskContext)
      * @param <R>      The return type of this task
@@ -100,7 +103,19 @@ public class TaskQueue<T> {
     }
 
     /**
+     * Adds an asynchronous CompletableFuture task to the queue.
+     *
+     * @param future The CompletableFuture to execute
+     * @param <R>    The return type of this task
+     * @return A new {@link TaskQueue} with the added task
+     */
+    public <R> TaskQueue<R> async(CompletableFuture<R> future) {
+        return addTask(new FutureTask<>(convertToFunction(future), false));
+    }
+
+    /**
      * Adds a synchronous processing task to the queue.
+     * Supports regular values and CompletableFuture return types.
      *
      * @param function The function to execute on the main thread
      * @param <R>      The return type of this task
@@ -112,6 +127,7 @@ public class TaskQueue<T> {
 
     /**
      * Adds a synchronous processing task with access to task context.
+     * Supports regular values and CompletableFuture return types.
      *
      * @param function The bi-function to execute on the main thread
      * @param <R>      The return type of this task
@@ -163,6 +179,17 @@ public class TaskQueue<T> {
      */
     public TaskQueue<Void> sync(Runnable runnable) {
         return sync(Executors.callable(runnable, null));
+    }
+
+    /**
+     * Adds a synchronous CompletableFuture task to the queue.
+     *
+     * @param future The CompletableFuture to execute
+     * @param <R>    The return type of this task
+     * @return A new {@link TaskQueue} with the added task
+     */
+    public <R> TaskQueue<R> sync(CompletableFuture<R> future) {
+        return addTask(new FutureTask<>(convertToFunction(future), true));
     }
 
     /**
@@ -268,5 +295,18 @@ public class TaskQueue<T> {
                 throw new RuntimeException(e);
             }
         };
+    }
+
+    /**
+     * Internal utility method to convert a {@link CompletableFuture} to a {@link Function}.
+     *
+     * @param future future
+     * @param <T>      the input type of the future
+     * @param <R>      the return type of the future
+     * @return function
+     */
+    @ApiStatus.Internal
+    protected static <T, R> Function<T, CompletableFuture<R>> convertToFunction(CompletableFuture<R> future) {
+        return (_ignored) -> future;
     }
 }
