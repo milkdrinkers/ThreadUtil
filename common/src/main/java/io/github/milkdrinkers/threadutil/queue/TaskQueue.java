@@ -1,10 +1,8 @@
 package io.github.milkdrinkers.threadutil.queue;
 
 import io.github.milkdrinkers.threadutil.PlatformAdapter;
-import io.github.milkdrinkers.threadutil.task.AsyncTask;
-import io.github.milkdrinkers.threadutil.task.DelayTask;
-import io.github.milkdrinkers.threadutil.task.SyncTask;
-import io.github.milkdrinkers.threadutil.task.Task;
+import io.github.milkdrinkers.threadutil.TaskContext;
+import io.github.milkdrinkers.threadutil.task.*;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.time.Duration;
@@ -12,6 +10,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -46,6 +45,17 @@ public class TaskQueue<T> {
     }
 
     /**
+     * Adds an asynchronous processing task with access to task context.
+     *
+     * @param function The bi-function to execute asynchronously (receives input and TaskContext)
+     * @param <R>      The return type of this task
+     * @return A new {@link TaskQueue} with the added task
+     */
+    public <R> TaskQueue<R> async(java.util.function.BiFunction<T, TaskContext, R> function) {
+        return addTask(new AsyncTask<>(input -> function.apply(input, new TaskContext(isCancelledFlag))));
+    }
+
+    /**
      * Adds an asynchronous processing task to the queue.
      *
      * @param consumer The consumer to execute asynchronously
@@ -53,6 +63,19 @@ public class TaskQueue<T> {
      */
     public TaskQueue<Void> async(Consumer<T> consumer) {
         return async(convertToFunction(consumer));
+    }
+
+    /**
+     * Adds an asynchronous processing task with access to task context.
+     *
+     * @param consumer The bi-consumer to execute asynchronously
+     * @return A new {@link TaskQueue} with the added task
+     */
+    public TaskQueue<Void> async(BiConsumer<T, TaskContext> consumer) {
+        return async((input, ctx) -> {
+            consumer.accept(input, ctx);
+            return null;
+        });
     }
 
     /**
@@ -88,6 +111,17 @@ public class TaskQueue<T> {
     }
 
     /**
+     * Adds a synchronous processing task with access to task context.
+     *
+     * @param function The bi-function to execute on the main thread
+     * @param <R>      The return type of this task
+     * @return A new {@link TaskQueue} with the added task
+     */
+    public <R> TaskQueue<R> sync(java.util.function.BiFunction<T, TaskContext, R> function) {
+        return addTask(new SyncTask<>(input -> function.apply(input, new TaskContext(isCancelledFlag))));
+    }
+
+    /**
      * Adds a synchronous processing task to the queue.
      *
      * @param consumer The consumer to execute on the main thread
@@ -95,6 +129,19 @@ public class TaskQueue<T> {
      */
     public TaskQueue<Void> sync(Consumer<T> consumer) {
         return sync(convertToFunction(consumer));
+    }
+
+    /**
+     * Adds a synchronous processing task with access to task context.
+     *
+     * @param consumer The bi-consumer to execute on the main thread
+     * @return A new {@link TaskQueue} with the added task
+     */
+    public TaskQueue<Void> sync(BiConsumer<T, TaskContext> consumer) {
+        return sync((input, ctx) -> {
+            consumer.accept(input, ctx);
+            return null;
+        });
     }
 
     /**
