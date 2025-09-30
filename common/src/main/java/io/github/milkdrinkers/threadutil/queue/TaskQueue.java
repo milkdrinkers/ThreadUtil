@@ -135,11 +135,7 @@ public class TaskQueue<T> {
      * @return The current {@link TaskQueue} with delay added
      */
     public TaskQueue<T> delay(Duration duration) {
-        try {
-            return delay(platform.toTicks(duration));
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
+        return delay(platform.toTicks(duration));
     }
 
     /**

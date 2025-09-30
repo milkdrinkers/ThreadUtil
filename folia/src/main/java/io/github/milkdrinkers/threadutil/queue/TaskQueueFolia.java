@@ -122,11 +122,7 @@ public class TaskQueueFolia<T> extends TaskQueue<T> {
      * @return The current {@link TaskQueueFolia} with delay added
      */
     public TaskQueueFolia<T> delay(Duration duration) {
-        try {
-            return delay(platform.toTicks(duration));
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
+        return delay(platform.toTicks(duration));
     }
 
     @SuppressWarnings("unchecked")

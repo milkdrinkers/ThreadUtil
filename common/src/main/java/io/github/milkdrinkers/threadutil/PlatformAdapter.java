@@ -68,13 +68,17 @@ public interface PlatformAdapter {
         getExecutorService().shutdown(duration);
     }
 
-    ;
+    /**
+     * A method to convert duration into Minecraft ticks (20 per second).
+     * @param duration duration
+     * @return ticks
+     */
+    long toTicks(Duration duration);
 
-    default long toTicks(Duration duration) throws NoSuchMethodException {
-        throw new NoSuchMethodException("Cannot convert duration to ticks on this platform");
-    }
-
-    default Duration fromTicks(long ticks) throws NoSuchMethodException {
-        throw new NoSuchMethodException("Cannot convert duration to ticks on this platform");
-    }
+    /**
+     * A method to convert Minecraft ticks (20 per second) into a Duration
+     * @param ticks ticks
+     * @return duration
+     */
+    Duration fromTicks(long ticks);
 }

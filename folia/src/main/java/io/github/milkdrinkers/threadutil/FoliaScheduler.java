@@ -112,11 +112,7 @@ public class FoliaScheduler extends Scheduler {
      * @return The current {@link TaskQueueFolia} with delay added
      */
     public static TaskQueueFolia<Void> delay(Duration duration) {
-        try {
-            return delay(getPlatform().toTicks(duration));
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
+        return delay(getPlatform().toTicks(duration));
     }
 
     // Folia specific methods
