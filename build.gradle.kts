@@ -47,7 +47,7 @@ subprojects {
     tasks {
         compileJava {
             options.encoding = Charsets.UTF_8.name()
-            options.compilerArgs.addAll(arrayListOf("-Xlint:all", "-Xlint:-processing", "-Xdiags:verbose"))
+            options.compilerArgs.addAll(arrayListOf("-Xlint:all", "-Xlint:-processing", "-Xlint:-options", "-Xdiags:verbose"))
             options.release.set(8)
         }
 
