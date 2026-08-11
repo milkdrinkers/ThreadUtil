@@ -1,33 +1,41 @@
-<h1 style="text-align:center;">ThreadUtil</h1>
+<div align="center">
+  <h1>ThreadUtil</h1>
 
-<p style="text-align:center;">
-    <a href="https://github.com/milkdrinkers/ThreadUtil/blob/main/LICENSE">
-        <img alt="GitHub License" src="https://img.shields.io/github/license/milkdrinkers/ThreadUtil?style=for-the-badge&color=blue&labelColor=141417">
-    </a>
-    <a href="https://central.sonatype.com/artifact/io.github.milkdrinkers/threadutil-common">
-        <img alt="Maven Central Version" src="https://img.shields.io/maven-central/v/io.github.milkdrinkers/threadutil-common?style=for-the-badge&labelColor=141417">
-    </a>
-    <a href="https://milkdrinkers.athyrium.eu/threadutil">
-        <img alt="Documentation" src="https://img.shields.io/badge/DOCUMENTATION-900C3F?style=for-the-badge&labelColor=141417">
-    </a>
-    <a href="https://javadoc.io/doc/io.github.milkdrinkers/threadutil-common">
-        <img alt="Javadoc" src="https://img.shields.io/badge/JAVADOC-8A2BE2?style=for-the-badge&labelColor=141417">
-    </a>
-    <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/milkdrinkers/ThreadUtil/ci.yml?style=for-the-badge&labelColor=141417">
-    <a href="https://github.com/milkdrinkers/ThreadUtil/issues">
-        <img alt="GitHub Issues" src="https://img.shields.io/github/issues/milkdrinkers/ThreadUtil?style=for-the-badge&labelColor=141417">
-    </a>
-    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/milkdrinkers/ThreadUtil?style=for-the-badge&labelColor=141417">
-    <a href="https://discord.gg/cG5uWvUcM6">
-        <img alt="Discord Server" src="https://img.shields.io/discord/1008300159333040158?style=for-the-badge&logo=discord&logoColor=ffffff&label=discord&labelColor=141417&color=%235865F2">
-    </a>
-</p>
+  _A fluent scheduling utility for Minecraft plugins, providing elegant async/sync runnable chaining with Bukkit/Spigot/Paper/Velocity integration._
 
-A fluent scheduling utility for Minecraft plugins, providing elegant async/sync runnable chaining with Bukkit/Spigot/Paper/Velocity integration.
+<br>
+<div>
+<a href="https://github.com/milkdrinkers/ThreadUtil/blob/main/LICENSE">
+    <img alt="GitHub License" src="https://img.shields.io/github/license/milkdrinkers/ThreadUtil?style=for-the-badge&color=blue&labelColor=141417">
+</a>
+<a href="https://central.sonatype.com/artifact/io.github.milkdrinkers/threadutil-common">
+    <img alt="Maven Central Version" src="https://img.shields.io/maven-central/v/io.github.milkdrinkers/threadutil-common?style=for-the-badge&labelColor=141417">
+</a>
+<a href="https://docs.milkdrinkers.dev/threadutil">
+    <img alt="Documentation" src="https://img.shields.io/badge/DOCUMENTATION-900C3F?style=for-the-badge&labelColor=141417">
+</a>
+<a href="https://javadoc.io/doc/io.github.milkdrinkers/threadutil-common">
+    <img alt="Javadoc" src="https://img.shields.io/badge/JAVADOC-8A2BE2?style=for-the-badge&labelColor=141417">
+</a>
+<br>
+
+<img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/milkdrinkers/ThreadUtil/ci.yml?style=for-the-badge&labelColor=141417">
+<a href="https://github.com/milkdrinkers/ThreadUtil/issues">
+    <img alt="GitHub Issues" src="https://img.shields.io/github/issues/milkdrinkers/ThreadUtil?style=for-the-badge&labelColor=141417">
+</a>
+<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/milkdrinkers/ThreadUtil?style=for-the-badge&labelColor=141417">
+<a href="https://discord.gg/cG5uWvUcM6">
+    <img alt="Discord Server" src="https://img.shields.io/discord/1008300159333040158?style=for-the-badge&logo=discord&logoColor=ffffff&label=discord&labelColor=141417&color=%235865F2">
+</a>
+</div>
+</div>
 
 ---
 
+![code image](image.png)
+
 ## 🌟 Features
+
 - Fluent API for async/sync task chaining
 - Built-in delay support with tick/Duration precision
 - Task cancellation support
@@ -53,6 +61,7 @@ dependencies {
     implementation("io.github.milkdrinkers:threadutil-velocity:VERSION")
 }
 ```
+
 </details>
 
 <details>
@@ -84,9 +93,11 @@ dependencies {
     </dependencies>
 </project>
 ```
+
 </details>
 
 ## Usage Example 🚀
+
 ```java
 import io.github.milkdrinkers.threadutil.queue.RunningTaskQueue;
 import io.github.milkdrinkers.threadutil.PlatformBukkit;
@@ -118,15 +129,15 @@ Scheduler
 Scheduler.shutdown();
 ```
 
-## 📚 Documentation 
+## 📚 Documentation
 
 - [Full Javadoc Documentation](https://javadoc.io/doc/io.github.milkdrinkers/threadutil-common)
-- [Documentation](https://milkdrinkers.athyrium.eu/threadutil)
+- [Documentation](https://docs.milkdrinkers.dev/threadutil)
 - [Maven Central](https://central.sonatype.com/search?q=threadutil&namespace=io.github.milkdrinkers)
 
 ---
 
-## 🔨 Building from Source 
+## 🔨 Building from Source
 
 ```bash
 git clone https://github.com/milkdrinkers/ThreadUtil.git
@@ -146,21 +157,22 @@ We also ask that you adhere to our [Contributor Code of Conduct](CODE_OF_CONDUCT
 
 ## 📝 Licensing
 
-You can find the license the source code and all assets are under [here](../LICENSE). Additionally, contributors agree to the Contributor License Agreement \(*CLA*\) found [here](CONTRIBUTOR_LICENSE_AGREEMENT.md).
+You can find the license the source code and all assets are under [here](../LICENSE). Additionally, contributors agree to the Contributor License Agreement \(_CLA_\) found [here](CONTRIBUTOR_LICENSE_AGREEMENT.md).
 
 ---
 
 ## ❤️ Acknowledgments
 
-- **[Aikar:](https://github.com/aikar)** _For their excellent utility [__TaskChain__](https://github.com/aikar/TaskChain/), which this was inspired by. I highly recommend their library, providing the same features and more for any platform!_
+- **[Aikar:](https://github.com/aikar)** _For their excellent utility [**TaskChain**](https://github.com/aikar/TaskChain/), which this was inspired by. I highly recommend their library, providing the same features and more for any platform!_
 
 ---
 
 ## 🔥 Consuming Projects
 
 Here is a list of known projects using ThreadUtil:
-- [Minecraft-Plugin-Template](https://github.com/milkdrinkers/Minecraft-Plugin-Template) - *Provided by default in a Minecraft Plugin Template.*
-- [Maquillage](https://github.com/milkdrinkers/Maquillage) - *Maquillage a Minecraft cosmetics plugin.*
-- [Stewards](https://github.com/milkdrinkers/Stewards) - *Stewards a Minecraft Towny NPC extension plugin.*
-- [CharacterCards](https://github.com/Alathra/CharacterCards) - *CharacterCards is a Minecraft plugin allowing players to create cards describing their character.*
-- (*Add your project here!*)
+
+- [Minecraft-Plugin-Template](https://github.com/milkdrinkers/Minecraft-Plugin-Template) - _Provided by default in a Minecraft Plugin Template._
+- [Maquillage](https://github.com/milkdrinkers/Maquillage) - _Maquillage a Minecraft cosmetics plugin._
+- [Stewards](https://github.com/milkdrinkers/Stewards) - _Stewards a Minecraft Towny NPC extension plugin._
+- [CharacterCards](https://github.com/Alathra/CharacterCards) - _CharacterCards is a Minecraft plugin allowing players to create cards describing their character._
+- (_Add your project here!_)
